@@ -4,13 +4,14 @@ import HomeScreen from "./HomeScreen";
 import CameraScreen from "./CameraScreen";
 import ContactScreen from "./ContactScreen";
 import BlogListScreen from "./BlogListScreen";
+import BlogDetailScreen from "./BlogDetailScreen";
 
 export type RootStackParamList = {
   Home: undefined;
   Camera: undefined;
   Contact: undefined;
   BlogList: undefined;
-  BlogDetail: { postId: number }; // 나중에 디테일 구현용
+  BlogDetail: { postId: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -38,6 +39,12 @@ export default function App() {
           name="BlogList"
           component={BlogListScreen}
           options={{ title: "블로그" }}
+        />
+
+        <Stack.Screen
+          name="BlogDetail"
+          component={BlogDetailScreen}
+          options={{ title: "블로그 글" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
