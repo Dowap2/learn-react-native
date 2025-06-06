@@ -1,4 +1,3 @@
-// BlogDetailScreen.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -10,6 +9,7 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { supabase } from "./supabaseClient";
 import { RootStackParamList } from "./App";
+import Markdown from "@ronradtke/react-native-markdown-display";
 
 type Props = NativeStackScreenProps<RootStackParamList, "BlogDetail">;
 
@@ -83,7 +83,9 @@ function BlogDetailScreen({ route }: Props) {
 
       <View style={styles.separator} />
 
-      <Text style={styles.body}>{post.content ?? "내용이 없습니다."}</Text>
+      <Markdown style={markdownStyles}>
+        {post.content ?? "내용이 없습니다."}
+      </Markdown>
     </ScrollView>
   );
 }
@@ -135,9 +137,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     marginBottom: 16,
   },
+});
+
+const markdownStyles = StyleSheet.create({
   body: {
     fontSize: 15,
     lineHeight: 22,
     color: "#222",
+  },
+  heading1: {
+    fontSize: 24,
+    fontWeight: "700",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  heading2: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 14,
+    marginBottom: 6,
+  },
+  paragraph: {
+    marginBottom: 10,
+  },
+  code_inline: {
+    backgroundColor: "#f4f4f4",
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+    fontFamily: "monospace",
+  },
+  code_block: {
+    backgroundColor: "#f4f4f4",
+    padding: 10,
+    borderRadius: 6,
+    fontFamily: "monospace",
+    marginBottom: 12,
+  },
+  bullet_list: {
+    marginBottom: 8,
+  },
+  ordered_list: {
+    marginBottom: 8,
   },
 });
