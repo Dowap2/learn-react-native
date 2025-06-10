@@ -6,14 +6,37 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Modal,
+  Animated,
+  Easing,
 } from "react-native";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import List from "./List";
 
 function HomeScreen({ navigation }: any) {
-  const onPressMenu = () => {
-    console.log("햄버거 버튼 클릭!");
+  const [search, setSearch] = useState("");
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const slideAnim = useRef(new Animated.Value(300)).current;
+
+  const openMenu = () => {
+    setMenuVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: 300,
+      duration: 200,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: false,
+    }).start(() => setMenuVisible(false));
   };
 
   const faqData = [
@@ -31,8 +54,6 @@ function HomeScreen({ navigation }: any) {
     { question: "Expo는 뭐예요?", answer: "RN 개발을 쉽게 해주는 도구입니다." },
   ];
 
-  const [search, setSearch] = useState("");
-
   const filteredFAQ = faqData.filter((item) =>
     item.question.toLowerCase().includes(search.toLowerCase())
   );
@@ -41,7 +62,7 @@ function HomeScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image source={require("./assets/logo.png")} style={styles.logo} />
-        <TouchableOpacity onPress={onPressMenu}>
+        <TouchableOpacity onPress={openMenu}>
           <Ionicons name="menu" size={32} color="#000" />
         </TouchableOpacity>
       </View>
@@ -56,7 +77,6 @@ function HomeScreen({ navigation }: any) {
           />
         </View>
 
-        {/* 🔍 검색창 추가 */}
         <TextInput
           style={styles.searchInput}
           placeholder="질문 검색..."
@@ -64,13 +84,30 @@ function HomeScreen({ navigation }: any) {
           onChangeText={setSearch}
         />
 
-        {/* 필터링된 FAQ 출력 */}
         {filteredFAQ.map((item, index) => (
           <List key={index} question={item.question} answer={item.answer} />
         ))}
 
         <Button title="카메라" onPress={() => navigation.navigate("Camera")} />
       </View>
+
+      <Modal visible={menuVisible} transparent animationType="none">
+        <TouchableOpacity
+          style={styles.overlay}
+          onPress={closeMenu}
+          activeOpacity={1}
+        >
+          <Animated.View style={[styles.sideMenu, { right: slideAnim }]}>
+            <Text style={styles.menuTitle}>메뉴</Text>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}>설정</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuText}>고객센터</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -99,8 +136,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   icon: { width: 44, height: 44 },
-
-  // 🔍 검색창 스타일
   searchInput: {
     height: 44,
     borderWidth: 1,
@@ -109,5 +144,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 16,
     backgroundColor: "#F9F9F9",
+  },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+
+  sideMenu: {
+    position: "absolute",
+    top: 0,
+    width: 250,
+    height: "100%",
+    backgroundColor: "#fff",
+    paddingTop: 80,
+    paddingHorizontal: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: -4, height: 0 },
+  },
+
+  menuTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 32,
+  },
+
+  menuItem: {
+    paddingVertical: 14,
+  },
+
+  menuText: {
+    fontSize: 18,
+    color: "#333",
   },
 });
