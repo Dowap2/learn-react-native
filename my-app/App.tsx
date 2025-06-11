@@ -1,5 +1,4 @@
 import {
-  Button,
   StyleSheet,
   Text,
   View,
@@ -8,9 +7,8 @@ import {
   TextInput,
   Modal,
   Animated,
-  Easing,
 } from "react-native";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import List from "./List";
 
@@ -22,10 +20,11 @@ function HomeScreen({ navigation }: any) {
 
   const openMenu = () => {
     setMenuVisible(true);
-    Animated.timing(slideAnim, {
+
+    Animated.spring(slideAnim, {
       toValue: 0,
-      duration: 250,
-      easing: Easing.out(Easing.ease),
+      friction: 7,
+      tension: 60,
       useNativeDriver: false,
     }).start();
   };
@@ -34,7 +33,6 @@ function HomeScreen({ navigation }: any) {
     Animated.timing(slideAnim, {
       toValue: 300,
       duration: 200,
-      easing: Easing.in(Easing.ease),
       useNativeDriver: false,
     }).start(() => setMenuVisible(false));
   };
@@ -87,8 +85,6 @@ function HomeScreen({ navigation }: any) {
         {filteredFAQ.map((item, index) => (
           <List key={index} question={item.question} answer={item.answer} />
         ))}
-
-        <Button title="카메라" onPress={() => navigation.navigate("Camera")} />
       </View>
 
       <Modal visible={menuVisible} transparent animationType="none">
@@ -99,9 +95,21 @@ function HomeScreen({ navigation }: any) {
         >
           <Animated.View style={[styles.sideMenu, { right: slideAnim }]}>
             <Text style={styles.menuTitle}>메뉴</Text>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                closeMenu();
+                navigation.navigate("Camera");
+              }}
+            >
+              <Text style={styles.menuText}>카메라</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>설정</Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>고객센터</Text>
             </TouchableOpacity>
