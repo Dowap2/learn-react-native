@@ -16,7 +16,7 @@ function HomeScreen({ navigation }: any) {
   const [search, setSearch] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const slideAnim = useRef(new Animated.Value(300)).current;
+  const slideAnim = useRef(new Animated.Value(-300)).current;
 
   const openMenu = () => {
     setMenuVisible(true);
@@ -31,7 +31,7 @@ function HomeScreen({ navigation }: any) {
 
   const closeMenu = () => {
     Animated.timing(slideAnim, {
-      toValue: 300,
+      toValue: -300,
       duration: 200,
       useNativeDriver: false,
     }).start(() => setMenuVisible(false));
@@ -93,7 +93,7 @@ function HomeScreen({ navigation }: any) {
           onPress={closeMenu}
           activeOpacity={1}
         >
-          <Animated.View style={[styles.sideMenu, { right: slideAnim }]}>
+          <Animated.View style={[styles.sideMenu, { left: slideAnim }]}>
             <Text style={styles.menuTitle}>메뉴</Text>
 
             <TouchableOpacity
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     shadowColor: "#000",
     shadowOpacity: 0.2,
-    shadowOffset: { width: -4, height: 0 },
+    shadowOffset: { width: 4, height: 0 },
   },
 
   menuTitle: {
