@@ -16,24 +16,25 @@ function HomeScreen({ navigation }: any) {
   const [search, setSearch] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const slideAnim = useRef(new Animated.Value(-300)).current;
+  // 오른쪽에서 슬라이드 인/아웃
+  const slideAnim = useRef(new Animated.Value(300)).current; // 시작: 오른쪽 바깥
 
   const openMenu = () => {
     setMenuVisible(true);
 
     Animated.spring(slideAnim, {
-      toValue: 0,
+      toValue: 0, // 화면 안으로
       friction: 7,
       tension: 60,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   };
 
   const closeMenu = () => {
     Animated.timing(slideAnim, {
-      toValue: -300,
+      toValue: 300, // 다시 오른쪽 바깥으로
       duration: 200,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start(() => setMenuVisible(false));
   };
 
@@ -58,6 +59,7 @@ function HomeScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      {/* 헤더 */}
       <View style={styles.header}>
         <Image source={require("./assets/logo.png")} style={styles.logo} />
         <TouchableOpacity onPress={openMenu}>
@@ -65,6 +67,7 @@ function HomeScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
+      {/* 내용 */}
       <View style={styles.content}>
         <View style={styles.contentTitle}>
           <Text style={styles.title}>자주 묻는 질문</Text>
@@ -87,13 +90,19 @@ function HomeScreen({ navigation }: any) {
         ))}
       </View>
 
+      {/* 오른쪽 사이드 메뉴 모달 */}
       <Modal visible={menuVisible} transparent animationType="none">
         <TouchableOpacity
           style={styles.overlay}
           onPress={closeMenu}
           activeOpacity={1}
         >
-          <Animated.View style={[styles.sideMenu, { left: slideAnim }]}>
+          <Animated.View
+            style={[
+              styles.sideMenu,
+              { transform: [{ translateX: slideAnim }] },
+            ]}
+          >
             <Text style={styles.menuTitle}>메뉴</Text>
 
             <TouchableOpacity
@@ -157,11 +166,11 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "flex-start",
+    alignItems: "flex-end", // 오른쪽 정렬
   },
 
   sideMenu: {
-    position: "absolute",
-    top: 0,
     width: 250,
     height: "100%",
     backgroundColor: "#fff",
@@ -169,7 +178,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     shadowColor: "#000",
     shadowOpacity: 0.2,
-    shadowOffset: { width: 4, height: 0 },
+    shadowOffset: { width: -4, height: 0 }, // 오른쪽에서 튀어나오는 느낌
+    elevation: 5,
   },
 
   menuTitle: {
