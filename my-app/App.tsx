@@ -16,14 +16,13 @@ function HomeScreen({ navigation }: any) {
   const [search, setSearch] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
 
-  // 오른쪽에서 슬라이드 인/아웃
-  const slideAnim = useRef(new Animated.Value(300)).current; // 시작: 오른쪽 바깥
+  const slideAnim = useRef(new Animated.Value(300)).current;
 
   const openMenu = () => {
     setMenuVisible(true);
 
     Animated.spring(slideAnim, {
-      toValue: 0, // 화면 안으로
+      toValue: 0,
       friction: 7,
       tension: 60,
       useNativeDriver: true,
@@ -32,7 +31,7 @@ function HomeScreen({ navigation }: any) {
 
   const closeMenu = () => {
     Animated.timing(slideAnim, {
-      toValue: 300, // 다시 오른쪽 바깥으로
+      toValue: 300,
       duration: 200,
       useNativeDriver: true,
     }).start(() => setMenuVisible(false));
@@ -53,13 +52,14 @@ function HomeScreen({ navigation }: any) {
     { question: "Expo는 뭐예요?", answer: "RN 개발을 쉽게 해주는 도구입니다." },
   ];
 
+  const keywordSuggestions = ["피그마", "React Native", "Expo", "플러그인"];
+
   const filteredFAQ = faqData.filter((item) =>
     item.question.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <View style={styles.container}>
-      {/* 헤더 */}
       <View style={styles.header}>
         <Image source={require("./assets/logo.png")} style={styles.logo} />
         <TouchableOpacity onPress={openMenu}>
@@ -67,7 +67,6 @@ function HomeScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      {/* 내용 */}
       <View style={styles.content}>
         <View style={styles.contentTitle}>
           <Text style={styles.title}>자주 묻는 질문</Text>
@@ -78,19 +77,40 @@ function HomeScreen({ navigation }: any) {
           />
         </View>
 
-        <TextInput
-          style={styles.searchInput}
-          placeholder="질문 검색..."
-          value={search}
-          onChangeText={setSearch}
-        />
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="질문 검색..."
+            value={search}
+            onChangeText={setSearch}
+          />
+          {search.length > 0 && (
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => setSearch("")}
+            >
+              <Text style={styles.clearButtonText}>초기화</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={styles.suggestionContainer}>
+          {keywordSuggestions.map((keyword) => (
+            <TouchableOpacity
+              key={keyword}
+              style={styles.suggestionChip}
+              onPress={() => setSearch(keyword)}
+            >
+              <Text style={styles.suggestionText}>{keyword}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {filteredFAQ.map((item, index) => (
           <List key={index} question={item.question} answer={item.answer} />
         ))}
       </View>
 
-      {/* 오른쪽 사이드 메뉴 모달 */}
       <Modal visible={menuVisible} transparent animationType="none">
         <TouchableOpacity
           style={styles.overlay}
@@ -153,23 +173,57 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   icon: { width: 44, height: 44 },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   searchInput: {
+    flex: 1,
     height: 44,
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 16,
     backgroundColor: "#F9F9F9",
   },
-
+  clearButton: {
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+  },
+  clearButtonText: {
+    fontSize: 12,
+    color: "#555",
+  },
+  suggestionContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8 as any,
+    marginBottom: 16,
+  },
+  suggestionChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: "#F0F0F0",
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  suggestionText: {
+    fontSize: 13,
+    color: "#555",
+  },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "flex-start",
-    alignItems: "flex-end", // 오른쪽 정렬
+    alignItems: "flex-end",
   },
-
   sideMenu: {
     width: 250,
     height: "100%",
@@ -178,20 +232,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     shadowColor: "#000",
     shadowOpacity: 0.2,
-    shadowOffset: { width: -4, height: 0 }, // 오른쪽에서 튀어나오는 느낌
+    shadowOffset: { width: -4, height: 0 },
     elevation: 5,
   },
-
   menuTitle: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 32,
   },
-
   menuItem: {
     paddingVertical: 14,
   },
-
   menuText: {
     fontSize: 18,
     color: "#333",
