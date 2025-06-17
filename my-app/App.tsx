@@ -142,6 +142,15 @@ function HomeScreen({ navigation }: any) {
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>고객센터</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                closeMenu();
+                navigation.navigate("Contact");
+              }}
+            >
+              <Text style={styles.menuText}>문의하기</Text>
+            </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
       </Modal>
