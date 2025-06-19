@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "./App"; // 경로는 실제 파일 구조에 맞게 수정
+import { RootStackParamList } from "./App";
 import List from "./List";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
@@ -145,6 +145,16 @@ function HomeScreen({ navigation }: Props) {
 
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuText}>고객센터</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                closeMenu();
+                navigation.navigate("BlogList");
+              }}
+            >
+              <Text style={styles.menuText}>블로그</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

@@ -3,11 +3,14 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./HomeScreen";
 import CameraScreen from "./CameraScreen";
 import ContactScreen from "./ContactScreen";
+import BlogListScreen from "./BlogListScreen";
 
 export type RootStackParamList = {
   Home: undefined;
   Camera: undefined;
   Contact: undefined;
+  BlogList: undefined;
+  BlogDetail: { postId: number }; // 나중에 디테일 구현용
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -30,6 +33,11 @@ export default function App() {
           name="Contact"
           component={ContactScreen}
           options={{ title: "문의하기" }}
+        />
+        <Stack.Screen
+          name="BlogList"
+          component={BlogListScreen}
+          options={{ title: "블로그" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

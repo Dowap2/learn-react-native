@@ -14,19 +14,16 @@ import * as MediaLibrary from "expo-media-library";
 import * as ImageManipulator from "expo-image-manipulator";
 
 export default function Camera() {
-  // 카메라/미디어 권한
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions(); // expo-camera 훅
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [mediaPermission, requestMediaPermission] =
-    MediaLibrary.usePermissions(); // expo-media-library 훅
+    MediaLibrary.usePermissions();
 
   const cameraRef = useRef<CameraView>(null);
   const [facing, setFacing] = useState<"front" | "back">("back");
 
-  const [imageUri, setImageUri] = useState<string | null>(null); // 현재 작업중인 이미지
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
-  // 1) 사진 촬영
   const takePhoto = async () => {
-    // 권한 체크
     if (!cameraPermission?.granted) {
       const { granted } = await requestCameraPermission();
       if (!granted) {
@@ -43,11 +40,10 @@ export default function Camera() {
     }
   };
 
-  // 2) 갤러리에서 이미지 선택
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"], // 이미지 전용
+        mediaTypes: ["images"],
         allowsEditing: false,
         quality: 1,
       });
@@ -60,7 +56,6 @@ export default function Camera() {
     }
   };
 
-  // 3) 간단 편집(회전/미러/리사이즈)
   const rotate90 = async () => {
     if (!imageUri) return;
     const { uri } = await ImageManipulator.manipulateAsync(
