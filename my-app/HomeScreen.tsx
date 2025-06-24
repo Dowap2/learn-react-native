@@ -143,10 +143,6 @@ function HomeScreen({ navigation }: Props) {
               <Text style={styles.menuText}>설정</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuText}>고객센터</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
