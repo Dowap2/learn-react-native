@@ -112,7 +112,6 @@ function BlogListScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      {/* 상단 헤더 */}
       <View style={styles.header}>
         <Text style={styles.headerLabel}>MY BLOG</Text>
         <Text style={styles.headerTitle}>블로그 게시글</Text>
@@ -137,7 +136,7 @@ export default BlogListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB", // 밝은 배경
+    backgroundColor: "#F9FAFB",
   },
   header: {
     paddingHorizontal: 20,
@@ -172,7 +171,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderLeftWidth: 4,
 
-    // 부드러운 그림자
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 4 },
