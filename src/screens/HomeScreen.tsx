@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,16 +8,16 @@ import {
   TextInput,
   Modal,
   Animated,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "./App";
-import List from "./List";
-
-type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+} from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from 'App';
+import List from '@/components/List';
+import logo from '../../assets/logo.png'
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 function HomeScreen({ navigation }: Props) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(300)).current;
@@ -44,28 +44,28 @@ function HomeScreen({ navigation }: Props) {
   const faqData = [
     {
       question:
-        "피그마에서 여러 컴포넌트의 색상을 한 번에 바꿀 수 있는 플러그인은 뭐가 있나요?",
+        '피그마에서 여러 컴포넌트의 색상을 한 번에 바꿀 수 있는 플러그인은 뭐가 있나요?',
       answer:
-        "Batch Styler를 추천합니다. 여러 색상 스타일을 한 번에 수정할 수 있어서 정말 편해요.",
+        'Batch Styler를 추천합니다. 여러 색상 스타일을 한 번에 수정할 수 있어서 정말 편해요.',
     },
-    { question: "다른 예시 질문?", answer: "다른 답변 예시입니다." },
+    { question: '다른 예시 질문?', answer: '다른 답변 예시입니다.' },
     {
-      question: "React Native란?",
-      answer: "크로스 플랫폼 앱 개발 프레임워크입니다.",
+      question: 'React Native란?',
+      answer: '크로스 플랫폼 앱 개발 프레임워크입니다.',
     },
-    { question: "Expo는 뭐예요?", answer: "RN 개발을 쉽게 해주는 도구입니다." },
+    { question: 'Expo는 뭐예요?', answer: 'RN 개발을 쉽게 해주는 도구입니다.' },
   ];
 
-  const keywordSuggestions = ["피그마", "React Native", "Expo", "플러그인"];
+  const keywordSuggestions = ['피그마', 'React Native', 'Expo', '플러그인'];
 
   const filteredFAQ = faqData.filter((item) =>
-    item.question.toLowerCase().includes(search.toLowerCase())
+    item.question.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image source={require("./assets/logo.png")} style={styles.logo} />
+        <Image source={logo} style={styles.logo} />
         <TouchableOpacity onPress={openMenu}>
           <Ionicons name="menu" size={32} color="#000" />
         </TouchableOpacity>
@@ -74,11 +74,11 @@ function HomeScreen({ navigation }: Props) {
       <View style={styles.content}>
         <View style={styles.contentTitle}>
           <Text style={styles.title}>자주 묻는 질문</Text>
-          <Image
-            source={require("./assets/character.png")}
+          {/* <Image
+            // source={require('./assets/character.png')}
             style={styles.icon}
             resizeMode="contain"
-          />
+          /> */}
         </View>
 
         <View style={styles.searchRow}>
@@ -91,7 +91,7 @@ function HomeScreen({ navigation }: Props) {
           {search.length > 0 && (
             <TouchableOpacity
               style={styles.clearButton}
-              onPress={() => setSearch("")}
+              onPress={() => setSearch('')}
             >
               <Text style={styles.clearButtonText}>초기화</Text>
             </TouchableOpacity>
@@ -133,7 +133,7 @@ function HomeScreen({ navigation }: Props) {
               style={styles.menuItem}
               onPress={() => {
                 closeMenu();
-                navigation.navigate("Camera");
+                navigation.navigate('Camera');
               }}
             >
               <Text style={styles.menuText}>카메라</Text>
@@ -147,7 +147,7 @@ function HomeScreen({ navigation }: Props) {
               style={styles.menuItem}
               onPress={() => {
                 closeMenu();
-                navigation.navigate("BlogList");
+                navigation.navigate('BlogList');
               }}
             >
               <Text style={styles.menuText}>블로그</Text>
@@ -157,7 +157,7 @@ function HomeScreen({ navigation }: Props) {
               style={styles.menuItem}
               onPress={() => {
                 closeMenu();
-                navigation.navigate("Contact");
+                navigation.navigate('Contact');
               }}
             >
               <Text style={styles.menuText}>문의하기</Text>
@@ -172,40 +172,40 @@ function HomeScreen({ navigation }: Props) {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", marginTop: 20 },
+  container: { flex: 1, backgroundColor: '#fff', marginTop: 20 },
   logo: { height: 18, width: 88 },
   header: {
     height: 80,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     borderBottomWidth: 1,
-    borderColor: "#F7F7F7",
+    borderColor: '#F7F7F7',
     padding: 16,
   },
-  title: { fontSize: 32, fontWeight: "bold", color: "#000" },
+  title: { fontSize: 32, fontWeight: 'bold', color: '#000' },
   content: { flex: 1, padding: 16 },
   contentTitle: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 56,
     marginBottom: 20,
   },
   icon: { width: 44, height: 44 },
   searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 8,
   },
   searchInput: {
     flex: 1,
     height: 44,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: '#F9F9F9',
   },
   clearButton: {
     marginLeft: 8,
@@ -213,16 +213,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
   },
   clearButtonText: {
     fontSize: 12,
-    color: "#555",
+    color: '#555',
   },
   suggestionContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8 as any,
     marginBottom: 16,
   },
@@ -230,34 +230,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: '#F0F0F0',
     marginRight: 8,
     marginBottom: 8,
   },
   suggestionText: {
     fontSize: 13,
-    color: "#555",
+    color: '#555',
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    justifyContent: "flex-start",
-    alignItems: "flex-end",
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
   },
   sideMenu: {
     width: 250,
-    height: "100%",
-    backgroundColor: "#fff",
+    height: '100%',
+    backgroundColor: '#fff',
     paddingTop: 80,
     paddingHorizontal: 20,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowOffset: { width: -4, height: 0 },
     elevation: 5,
   },
   menuTitle: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 32,
   },
   menuItem: {
@@ -265,6 +265,6 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 18,
-    color: "#333",
+    color: '#333',
   },
 });

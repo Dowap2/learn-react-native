@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,21 +6,21 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-} from "react-native";
+} from 'react-native';
 
 function ContactScreen() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleSubmit = () => {
     if (!message.trim()) {
-      Alert.alert("문의하기", "문의 내용을 입력해 주세요.");
+      Alert.alert('문의하기', '문의 내용을 입력해 주세요.');
       return;
     }
 
-    Alert.alert("문의하기", "문의가 접수되었습니다. 감사합니다!");
-    setEmail("");
-    setMessage("");
+    Alert.alert('문의하기', '문의가 접수되었습니다. 감사합니다!');
+    setEmail('');
+    setMessage('');
   };
 
   return (
@@ -63,33 +63,33 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: 40,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 26,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
-    color: "#000",
+    color: '#000',
   },
   description: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
     marginBottom: 24,
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
     marginBottom: 6,
-    color: "#333",
+    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 16,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: '#F9F9F9',
     fontSize: 14,
   },
   textarea: {
@@ -97,14 +97,14 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 8,
-    backgroundColor: "#000",
+    backgroundColor: '#000',
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
   buttonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
 });

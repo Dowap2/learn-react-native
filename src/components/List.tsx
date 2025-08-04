@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   LayoutAnimation,
-} from "react-native";
+} from 'react-native';
 
 interface FAQItemProps {
   question: string;
@@ -25,7 +25,7 @@ export default function List({ question, answer }: FAQItemProps) {
       <TouchableOpacity onPress={toggle}>
         <View style={styles.accordionHeader}>
           <Text style={styles.accordionTitle}>{question}</Text>
-          <Text>{expanded ? "-" : "+"}</Text>
+          <Text>{expanded ? '-' : '+'}</Text>
         </View>
         {expanded && (
           <View style={styles.accordionContent}>
@@ -39,19 +39,19 @@ export default function List({ question, answer }: FAQItemProps) {
 
 const styles = StyleSheet.create({
   accordionList: {
-    backgroundColor: "#EEF4FF",
+    backgroundColor: '#EEF4FF',
     padding: 24,
     borderRadius: 16,
     marginBottom: 20,
   },
   accordionHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  accordionTitle: { color: "#191F28", fontSize: 16, fontWeight: "bold" },
+  accordionTitle: { color: '#191F28', fontSize: 16, fontWeight: 'bold' },
   accordionContent: {
-    color: "#191F28CC",
+    color: '#191F28CC',
     marginTop: 10,
   },
 });

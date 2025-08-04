@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StatusBar,
-} from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { supabase } from "./supabaseClient";
-import { RootStackParamList } from "./App";
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { supabase } from '@/libs/supabaseClient';
+import { RootStackParamList } from 'App';
 
-type Props = NativeStackScreenProps<RootStackParamList, "BlogList">;
+type Props = NativeStackScreenProps<RootStackParamList, 'BlogList'>;
 
 type Post = {
   id: number;
@@ -21,7 +21,7 @@ type Post = {
   created_at: string;
 };
 
-const ACCENT_COLORS = ["#6366F1", "#F472B6", "#34D399", "#F59E0B"];
+const ACCENT_COLORS = ['#6366F1', '#F472B6', '#34D399', '#F59E0B'];
 
 function BlogListScreen({ navigation }: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -33,13 +33,13 @@ function BlogListScreen({ navigation }: Props) {
     setError(null);
 
     const { data, error } = await supabase
-      .from("posts")
-      .select("id, title, summary, created_at")
-      .order("created_at", { ascending: false });
+      .from('posts')
+      .select('id, title, summary, created_at')
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.log(error);
-      setError("글 목록을 불러오는 중 오류가 발생했습니다.");
+      setError('글 목록을 불러오는 중 오류가 발생했습니다.');
     } else {
       setPosts(data as Post[]);
     }
@@ -53,13 +53,13 @@ function BlogListScreen({ navigation }: Props) {
 
   const renderItem = ({ item }: { item: Post }) => {
     const accentColor = ACCENT_COLORS[item.id % ACCENT_COLORS.length];
-    const dateStr = new Date(item.created_at).toLocaleDateString("ko-KR");
+    const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR');
 
     return (
       <TouchableOpacity
         activeOpacity={0.85}
         style={[styles.itemContainer, { borderLeftColor: accentColor }]}
-        onPress={() => navigation.navigate("BlogDetail", { postId: item.id })}
+        onPress={() => navigation.navigate('BlogDetail', { postId: item.id })}
       >
         <Text style={styles.itemTitle} numberOfLines={1}>
           {item.title}
@@ -136,7 +136,7 @@ export default BlogListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#F9FAFB',
   },
   header: {
     paddingHorizontal: 20,
@@ -146,32 +146,32 @@ const styles = StyleSheet.create({
   headerLabel: {
     fontSize: 11,
     letterSpacing: 2,
-    color: "#9CA3AF",
+    color: '#9CA3AF',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 26,
-    fontWeight: "800",
-    color: "#111827",
+    fontWeight: '800',
+    color: '#111827',
   },
   headerSubtitle: {
     fontSize: 13,
     marginTop: 4,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 28,
   },
   itemContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 16,
     marginBottom: 16,
     borderLeftWidth: 4,
 
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
@@ -179,23 +179,23 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
+    fontWeight: '700',
+    color: '#111827',
     marginBottom: 6,
   },
   itemSummary: {
     fontSize: 14,
-    color: "#4B5563",
+    color: '#4B5563',
     marginBottom: 10,
   },
   itemFooter: {
     marginTop: 4,
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   dateWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   dateDot: {
@@ -205,39 +205,39 @@ const styles = StyleSheet.create({
   },
   itemDate: {
     fontSize: 12,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#F9FAFB',
   },
   loadingText: {
     marginTop: 8,
     fontSize: 14,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   errorText: {
     fontSize: 14,
-    color: "#DC2626",
+    color: '#DC2626',
     marginBottom: 12,
-    textAlign: "center",
+    textAlign: 'center',
   },
   retryButton: {
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: "#6366F1",
+    backgroundColor: '#6366F1',
   },
   retryText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   emptyText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: '#6B7280',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,23 +6,32 @@ import {
   ActivityIndicator,
   ScrollView,
   StatusBar,
-} from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { supabase } from "./supabaseClient";
-import { RootStackParamList } from "./App";
-import Markdown from "@ronradtke/react-native-markdown-display";
+} from 'react-native';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
+import { supabase } from '@/libs/supabaseClient';
+import { RootStackParamList } from 'App';
+import Markdown from '@ronradtke/react-native-markdown-display';
 
-type Props = NativeStackScreenProps<RootStackParamList, "BlogDetail">;
+type BlogDetailRouteProp = RouteProp<RootStackParamList, 'BlogDetail'>;
+type BlogDetailNavigationProp = NavigationProp<
+  RootStackParamList,
+  'BlogDetail'
+>;
+
+type Props = {
+  route: BlogDetailRouteProp;
+  navigation: BlogDetailNavigationProp;
+};
 
 type Post = {
   id: number;
   title: string;
+  content: string;
   summary: string | null;
-  content: string | null;
   created_at: string;
 };
 
-const ACCENT_COLORS = ["#6366F1", "#F472B6", "#34D399", "#F59E0B"];
+const ACCENT_COLORS = ['#6366F1', '#F472B6', '#34D399', '#F59E0B'];
 
 function BlogDetailScreen({ route }: Props) {
   const { postId } = route.params;
@@ -35,13 +44,13 @@ function BlogDetailScreen({ route }: Props) {
     setError(null);
 
     const { data, error } = await supabase
-      .from("posts")
-      .select("id, title, summary, content, created_at")
-      .eq("id", postId)
+      .from('posts')
+      .select('id, title, summary, content, created_at')
+      .eq('id', postId)
       .single();
 
     if (error) {
-      setError("글을 불러오는 중 오류가 발생했습니다.");
+      setError('글을 불러오는 중 오류가 발생했습니다.');
       setPost(null);
     } else {
       setPost(data as Post);
@@ -67,14 +76,14 @@ function BlogDetailScreen({ route }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>
-          {error ?? "글을 찾을 수 없습니다."}
+          {error ?? '글을 찾을 수 없습니다.'}
         </Text>
       </View>
     );
   }
 
   const accentColor = ACCENT_COLORS[post.id % ACCENT_COLORS.length];
-  const dateStr = new Date(post.created_at).toLocaleDateString("ko-KR");
+  const dateStr = new Date(post.created_at).toLocaleDateString('ko-KR');
   const markdownStyles = createMarkdownStyles(accentColor);
 
   return (
@@ -106,7 +115,7 @@ function BlogDetailScreen({ route }: Props) {
         ]}
       >
         <Markdown style={markdownStyles}>
-          {post.content ?? "내용이 없습니다."}
+          {post.content ?? '내용이 없습니다.'}
         </Markdown>
       </View>
     </ScrollView>
@@ -118,7 +127,7 @@ export default BlogDetailScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: '#F9FAFB',
   },
   content: {
     paddingHorizontal: 16,
@@ -127,18 +136,18 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
   },
   loadingText: {
     marginTop: 8,
     fontSize: 14,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   errorText: {
     fontSize: 14,
-    color: "#DC2626",
+    color: '#DC2626',
   },
   header: {
     marginBottom: 16,
@@ -146,18 +155,18 @@ const styles = StyleSheet.create({
   headerLabel: {
     fontSize: 11,
     letterSpacing: 2,
-    color: "#9CA3AF",
+    color: '#9CA3AF',
     marginBottom: 6,
   },
   title: {
     fontSize: 24,
-    fontWeight: "800",
-    color: "#111827",
+    fontWeight: '800',
+    color: '#111827',
     marginBottom: 8,
   },
   dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
   },
   dateDot: {
@@ -168,20 +177,20 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 12,
-    color: "#6B7280",
+    color: '#6B7280',
   },
   summary: {
     fontSize: 14,
-    color: "#4B5563",
+    color: '#4B5563',
     marginTop: 8,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 18,
     borderTopWidth: 3,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
@@ -194,28 +203,28 @@ function createMarkdownStyles(accentColor: string) {
     body: {
       fontSize: 15,
       lineHeight: 22,
-      color: "#111827",
+      color: '#111827',
     },
     heading1: {
       fontSize: 22,
-      fontWeight: "700",
+      fontWeight: '700',
       marginTop: 18,
       marginBottom: 8,
-      color: "#111827",
+      color: '#111827',
     },
     heading2: {
       fontSize: 18,
-      fontWeight: "700",
+      fontWeight: '700',
       marginTop: 16,
       marginBottom: 6,
-      color: "#111827",
+      color: '#111827',
     },
     heading3: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: '600',
       marginTop: 14,
       marginBottom: 4,
-      color: "#111827",
+      color: '#111827',
     },
     paragraph: {
       marginBottom: 10,
@@ -229,33 +238,33 @@ function createMarkdownStyles(accentColor: string) {
       paddingLeft: 6,
     },
     code_inline: {
-      backgroundColor: "#F3F4F6",
+      backgroundColor: '#F3F4F6',
       paddingHorizontal: 4,
       paddingVertical: 2,
       borderRadius: 4,
-      fontFamily: "monospace",
+      fontFamily: 'monospace',
       borderWidth: 1,
-      borderColor: "#E5E7EB",
+      borderColor: '#E5E7EB',
     },
     code_block: {
-      backgroundColor: "#F3F4F6",
+      backgroundColor: '#F3F4F6',
       padding: 10,
       borderRadius: 8,
-      fontFamily: "monospace",
+      fontFamily: 'monospace',
       marginBottom: 12,
       borderLeftWidth: 3,
       borderLeftColor: accentColor,
     },
     strong: {
-      fontWeight: "700",
-      color: "#111827",
+      fontWeight: '700',
+      color: '#111827',
     },
     em: {
-      fontStyle: "italic",
+      fontStyle: 'italic',
     },
     link: {
       color: accentColor,
-      textDecorationLine: "underline",
+      textDecorationLine: 'underline',
     },
   });
 }
