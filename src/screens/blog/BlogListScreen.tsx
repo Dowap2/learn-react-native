@@ -21,7 +21,7 @@ type Post = {
   created_at: string;
 };
 
-const ACCENT_COLORS = ['#6366F1', '#F472B6', '#34D399', '#F59E0B'];
+const ACCENT_COLOR = '#1E3A8A';
 
 function BlogListScreen({ navigation }: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -52,18 +52,20 @@ function BlogListScreen({ navigation }: Props) {
   }, []);
 
   const renderItem = ({ item }: { item: Post }) => {
-    const accentColor = ACCENT_COLORS[item.id % ACCENT_COLORS.length];
     const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR');
 
     return (
       <TouchableOpacity
-        activeOpacity={0.85}
-        style={[styles.itemContainer, { borderLeftColor: accentColor }]}
+        activeOpacity={0.9}
+        style={styles.itemContainer}
         onPress={() => navigation.navigate('BlogDetail', { postId: item.id })}
       >
-        <Text style={styles.itemTitle} numberOfLines={1}>
-          {item.title}
-        </Text>
+        <View style={styles.itemHeaderRow}>
+          <View style={styles.itemBadge} />
+          <Text style={styles.itemTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+        </View>
 
         {item.summary && (
           <Text style={styles.itemSummary} numberOfLines={2}>
@@ -72,9 +74,8 @@ function BlogListScreen({ navigation }: Props) {
         )}
 
         <View style={styles.itemFooter}>
-          <View style={styles.dateWrapper}>
-            <View style={[styles.dateDot, { backgroundColor: accentColor }]} />
-            <Text style={styles.itemDate}>{dateStr}</Text>
+          <View style={styles.dateChip}>
+            <Text style={styles.dateChipText}>{dateStr}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -84,7 +85,7 @@ function BlogListScreen({ navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={ACCENT_COLOR} />
         <Text style={styles.loadingText}>불러오는 중...</Text>
       </View>
     );
@@ -112,11 +113,12 @@ function BlogListScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
+
       <View style={styles.header}>
         <Text style={styles.headerLabel}>MY BLOG</Text>
         <Text style={styles.headerTitle}>블로그 게시글</Text>
         <Text style={styles.headerSubtitle}>
-          새로운 글이 올라오면 여기에서 확인할 수 있어요.
+          새로 작성한 글을 한 곳에서 확인해보세요.
         </Text>
       </View>
 
@@ -136,56 +138,73 @@ export default BlogListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F3F4F6', // 전체 배경 살짝 밝은 그레이
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 22,
-    paddingBottom: 16,
+    paddingTop: 24,
+    paddingBottom: 18,
   },
   headerLabel: {
     fontSize: 11,
     letterSpacing: 2,
     color: '#9CA3AF',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   headerTitle: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0F172A',
   },
   headerSubtitle: {
     fontSize: 13,
-    marginTop: 4,
+    marginTop: 6,
     color: '#6B7280',
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 28,
   },
+
+  // 카드
   itemContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 18,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    marginBottom: 16,
-    borderLeftWidth: 4,
+    marginBottom: 14,
+
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
 
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 6 },
     shadowRadius: 10,
-    elevation: 3,
+    elevation: 2,
+  },
+  itemHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  itemBadge: {
+    width: 8,
+    height: 20,
+    borderRadius: 999,
+    backgroundColor: ACCENT_COLOR,
+    marginRight: 10,
   },
   itemTitle: {
-    fontSize: 18,
+    flex: 1,
+    fontSize: 17,
     fontWeight: '700',
     color: '#111827',
-    marginBottom: 6,
   },
   itemSummary: {
     fontSize: 14,
     color: '#4B5563',
+    marginTop: 2,
     marginBottom: 10,
   },
   itemFooter: {
@@ -193,26 +212,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-  dateWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  dateDot: {
-    width: 6,
-    height: 6,
+  dateChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 999,
+    backgroundColor: '#EEF2FF', // 네이비 계열의 옅은 배경
   },
-  itemDate: {
+  dateChipText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: ACCENT_COLOR,
+    fontWeight: '500',
   },
+
+  // 공통 상태
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F3F4F6',
   },
   loadingText: {
     marginTop: 8,
@@ -229,7 +247,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: '#6366F1',
+    backgroundColor: ACCENT_COLOR,
   },
   retryText: {
     color: '#FFFFFF',

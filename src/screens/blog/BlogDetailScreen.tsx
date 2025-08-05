@@ -31,7 +31,7 @@ type Post = {
   created_at: string;
 };
 
-const ACCENT_COLORS = ['#6366F1', '#F472B6', '#34D399', '#F59E0B'];
+const ACCENT_COLOR = '#1E3A8A';
 
 function BlogDetailScreen({ route }: Props) {
   const { postId } = route.params;
@@ -66,7 +66,7 @@ function BlogDetailScreen({ route }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={ACCENT_COLOR} />
         <Text style={styles.loadingText}>불러오는 중...</Text>
       </View>
     );
@@ -82,9 +82,8 @@ function BlogDetailScreen({ route }: Props) {
     );
   }
 
-  const accentColor = ACCENT_COLORS[post.id % ACCENT_COLORS.length];
   const dateStr = new Date(post.created_at).toLocaleDateString('ko-KR');
-  const markdownStyles = createMarkdownStyles(accentColor);
+  const markdownStyles = createMarkdownStyles(ACCENT_COLOR);
 
   return (
     <ScrollView
@@ -98,22 +97,21 @@ function BlogDetailScreen({ route }: Props) {
         <Text style={styles.headerLabel}>POST DETAIL</Text>
         <Text style={styles.title}>{post.title}</Text>
 
-        <View style={styles.dateRow}>
-          <View style={[styles.dateDot, { backgroundColor: accentColor }]} />
-          <Text style={styles.date}>{dateStr}</Text>
+        <View style={styles.metaRow}>
+          <View style={styles.dateRow}>
+            <View style={styles.dateDot} />
+            <Text style={styles.date}>{dateStr}</Text>
+          </View>
         </View>
 
-        {post.summary && <Text style={styles.summary}>{post.summary}</Text>}
+        {post.summary && (
+          <View style={styles.summaryBox}>
+            <Text style={styles.summary}>{post.summary}</Text>
+          </View>
+        )}
       </View>
 
-      <View
-        style={[
-          styles.card,
-          {
-            borderTopColor: accentColor,
-          },
-        ]}
-      >
+      <View style={styles.card}>
         <Markdown style={markdownStyles}>
           {post.content ?? '내용이 없습니다.'}
         </Markdown>
@@ -127,7 +125,7 @@ export default BlogDetailScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F3F4F6',
   },
   content: {
     paddingHorizontal: 16,
@@ -138,7 +136,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 20,
   },
   loadingText: {
     marginTop: 8,
@@ -148,9 +147,10 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 14,
     color: '#DC2626',
+    textAlign: 'center',
   },
   header: {
-    marginBottom: 16,
+    marginBottom: 18,
   },
   headerLabel: {
     fontSize: 11,
@@ -161,40 +161,58 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0F172A',
     marginBottom: 8,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    justifyContent: 'space-between',
   },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
   },
   dateDot: {
-    width: 6,
-    height: 6,
+    width: 8,
+    height: 8,
     borderRadius: 999,
     marginRight: 6,
+    backgroundColor: ACCENT_COLOR,
   },
   date: {
     fontSize: 12,
     color: '#6B7280',
   },
-  summary: {
-    fontSize: 14,
-    color: '#4B5563',
+  summaryBox: {
     marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#E5E7EB',
+  },
+  summary: {
+    fontSize: 13,
+    color: '#4B5563',
+    lineHeight: 20,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 18,
     paddingHorizontal: 16,
     paddingVertical: 18,
+
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     borderTopWidth: 3,
+    borderTopColor: ACCENT_COLOR,
+
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 10,
+    elevation: 2,
   },
 });
 
@@ -202,28 +220,28 @@ function createMarkdownStyles(accentColor: string) {
   return StyleSheet.create({
     body: {
       fontSize: 15,
-      lineHeight: 22,
+      lineHeight: 24,
       color: '#111827',
     },
     heading1: {
       fontSize: 22,
       fontWeight: '700',
-      marginTop: 18,
-      marginBottom: 8,
-      color: '#111827',
+      marginTop: 20,
+      marginBottom: 10,
+      color: '#0F172A',
     },
     heading2: {
       fontSize: 18,
       fontWeight: '700',
-      marginTop: 16,
-      marginBottom: 6,
-      color: '#111827',
+      marginTop: 18,
+      marginBottom: 8,
+      color: '#0F172A',
     },
     heading3: {
       fontSize: 16,
       fontWeight: '600',
       marginTop: 14,
-      marginBottom: 4,
+      marginBottom: 6,
       color: '#111827',
     },
     paragraph: {
@@ -231,11 +249,11 @@ function createMarkdownStyles(accentColor: string) {
     },
     bullet_list: {
       marginBottom: 8,
-      paddingLeft: 6,
+      paddingLeft: 8,
     },
     ordered_list: {
       marginBottom: 8,
-      paddingLeft: 6,
+      paddingLeft: 8,
     },
     code_inline: {
       backgroundColor: '#F3F4F6',
