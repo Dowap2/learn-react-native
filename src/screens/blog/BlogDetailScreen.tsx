@@ -29,6 +29,7 @@ type Post = {
   content: string;
   summary: string | null;
   created_at: string;
+  tags: string | null; // ⬅ 태그 컬럼 추가
 };
 
 const ACCENT_COLOR = '#1E3A8A';
@@ -45,7 +46,7 @@ function BlogDetailScreen({ route }: Props) {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('id, title, summary, content, created_at')
+      .select('id, title, summary, content, created_at, tags') // ⬅ tags까지 조회
       .eq('id', postId)
       .single();
 
@@ -85,6 +86,14 @@ function BlogDetailScreen({ route }: Props) {
   const dateStr = new Date(post.created_at).toLocaleDateString('ko-KR');
   const markdownStyles = createMarkdownStyles(ACCENT_COLOR);
 
+  // "회고, CSS" → ['회고', 'CSS']
+  const tags = post.tags
+    ? post.tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
+
   return (
     <ScrollView
       style={styles.container}
@@ -104,9 +113,14 @@ function BlogDetailScreen({ route }: Props) {
           </View>
         </View>
 
-        {post.summary && (
-          <View style={styles.summaryBox}>
-            <Text style={styles.summary}>{post.summary}</Text>
+        {/* ⬇ 프리뷰(summary) 대신 태그만 표시 */}
+        {tags.length > 0 && (
+          <View style={styles.tagRow}>
+            {tags.map((tag) => (
+              <View key={tag} style={styles.tagChip}>
+                <Text style={styles.tagChipText}>#{tag}</Text>
+              </View>
+            ))}
           </View>
         )}
       </View>
@@ -167,7 +181,7 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
     justifyContent: 'space-between',
   },
   dateRow: {
@@ -185,18 +199,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
   },
-  summaryBox: {
+
+  // ⬇ 태그 스타일
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     marginTop: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: '#E5E7EB',
   },
-  summary: {
-    fontSize: 13,
-    color: '#4B5563',
-    lineHeight: 20,
+  tagChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginRight: 6,
+    marginBottom: 4,
   },
+  tagChipText: {
+    fontSize: 11,
+    color: ACCENT_COLOR,
+  },
+
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,

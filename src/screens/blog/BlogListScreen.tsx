@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { supabase } from '@/libs/supabaseClient';
@@ -19,6 +20,7 @@ type Post = {
   title: string;
   summary: string | null;
   created_at: string;
+  tags: string | null; // "회고,CSS" 같은 문자열
 };
 
 const ACCENT_COLOR = '#1E3A8A';
@@ -27,6 +29,7 @@ function BlogListScreen({ navigation }: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -34,7 +37,7 @@ function BlogListScreen({ navigation }: Props) {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('id, title, summary, created_at')
+      .select('id, title, summary, created_at, tags') // ⬅ tags 추가
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -51,8 +54,42 @@ function BlogListScreen({ navigation }: Props) {
     fetchPosts();
   }, []);
 
+  // 전체 포스트에서 사용된 태그 목록 추출 (중복 제거)
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    posts.forEach((post) => {
+      if (!post.tags) return;
+      post.tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean)
+        .forEach((t) => tagSet.add(t));
+    });
+    return Array.from(tagSet);
+  }, [posts]);
+
+  // 선택된 태그에 따라 필터링된 포스트
+  const filteredPosts = useMemo(() => {
+    if (!selectedTag) return posts;
+
+    return posts.filter((post) => {
+      if (!post.tags) return false;
+      const tags = post.tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+      return tags.includes(selectedTag);
+    });
+  }, [posts, selectedTag]);
+
   const renderItem = ({ item }: { item: Post }) => {
     const dateStr = new Date(item.created_at).toLocaleDateString('ko-KR');
+    const tags = item.tags
+      ? item.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [];
 
     return (
       <TouchableOpacity
@@ -71,6 +108,17 @@ function BlogListScreen({ navigation }: Props) {
           <Text style={styles.itemSummary} numberOfLines={2}>
             {item.summary}
           </Text>
+        )}
+
+        {/* 태그 표시 영역 */}
+        {tags.length > 0 && (
+          <View style={styles.tagRow}>
+            {tags.map((tag) => (
+              <View key={tag} style={styles.tagChipInCard}>
+                <Text style={styles.tagChipInCardText}>#{tag}</Text>
+              </View>
+            ))}
+          </View>
         )}
 
         <View style={styles.itemFooter}>
@@ -120,10 +168,60 @@ function BlogListScreen({ navigation }: Props) {
         <Text style={styles.headerSubtitle}>
           새로 작성한 글을 한 곳에서 확인해보세요.
         </Text>
+
+        {/* 태그 필터 영역 */}
+        {allTags.length > 0 && (
+          <View style={styles.tagFilterContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.tagFilterScrollContent}
+            >
+              <TouchableOpacity
+                style={[styles.tagChip, !selectedTag && styles.tagChipSelected]}
+                onPress={() => setSelectedTag(null)}
+              >
+                <Text
+                  style={[
+                    styles.tagChipText,
+                    !selectedTag && styles.tagChipTextSelected,
+                  ]}
+                >
+                  전체
+                </Text>
+              </TouchableOpacity>
+
+              {allTags.map((tag) => {
+                const isSelected = selectedTag === tag;
+                return (
+                  <TouchableOpacity
+                    key={tag}
+                    style={[
+                      styles.tagChip,
+                      isSelected && styles.tagChipSelected,
+                    ]}
+                    onPress={() =>
+                      setSelectedTag((prev) => (prev === tag ? null : tag))
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.tagChipText,
+                        isSelected && styles.tagChipTextSelected,
+                      ]}
+                    >
+                      #{tag}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
       </View>
 
       <FlatList
-        data={posts}
+        data={filteredPosts}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
@@ -138,12 +236,12 @@ export default BlogListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6', // 전체 배경 살짝 밝은 그레이
+    backgroundColor: '#F3F4F6',
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 24,
-    paddingBottom: 18,
+    paddingBottom: 10,
   },
   headerLabel: {
     fontSize: 11,
@@ -161,6 +259,36 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: '#6B7280',
   },
+
+  // 태그 필터 영역
+  tagFilterContainer: {
+    marginTop: 14,
+  },
+  tagFilterScrollContent: {
+    paddingRight: 4,
+  },
+  tagChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
+    marginRight: 8,
+  },
+  tagChipSelected: {
+    backgroundColor: '#EEF2FF',
+    borderColor: ACCENT_COLOR,
+  },
+  tagChipText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  tagChipTextSelected: {
+    color: ACCENT_COLOR,
+    fontWeight: '600',
+  },
+
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 28,
@@ -205,8 +333,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#4B5563',
     marginTop: 2,
-    marginBottom: 10,
+    marginBottom: 8,
   },
+
+  // 카드 내부 태그 표시
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 6,
+  },
+  tagChipInCard: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginRight: 6,
+    marginBottom: 4,
+  },
+  tagChipInCardText: {
+    fontSize: 11,
+    color: '#6B7280',
+  },
+
   itemFooter: {
     marginTop: 4,
     flexDirection: 'row',
@@ -216,7 +366,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#EEF2FF', // 네이비 계열의 옅은 배경
+    backgroundColor: '#EEF2FF',
   },
   dateChipText: {
     fontSize: 12,
