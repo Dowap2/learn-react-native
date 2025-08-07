@@ -37,7 +37,7 @@ function BlogListScreen({ navigation }: Props) {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('id, title, summary, created_at, tags') // ⬅ tags 추가
+      .select('id, title, summary, created_at, tags')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -110,7 +110,7 @@ function BlogListScreen({ navigation }: Props) {
           </Text>
         )}
 
-        {/* 태그 표시 영역 */}
+        {/* 카드 내부 태그 표시 */}
         {tags.length > 0 && (
           <View style={styles.tagRow}>
             {tags.map((tag) => (
@@ -168,6 +168,16 @@ function BlogListScreen({ navigation }: Props) {
         <Text style={styles.headerSubtitle}>
           새로 작성한 글을 한 곳에서 확인해보세요.
         </Text>
+
+        {/* 글 작성 버튼 */}
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.writeButton}
+            onPress={() => navigation.navigate('BlogCreate')}
+          >
+            <Text style={styles.writeButtonText}>글 작성</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* 태그 필터 영역 */}
         {allTags.length > 0 && (
@@ -258,6 +268,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 6,
     color: '#6B7280',
+  },
+
+  headerActions: {
+    marginTop: 12,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  writeButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: ACCENT_COLOR,
+  },
+  writeButtonText: {
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 
   // 태그 필터 영역

@@ -8,6 +8,7 @@ import CameraScreen from '@/screens/CameraScreen';
 import ContactScreen from '@/screens/ContactScreen';
 import BlogListScreen from '@/screens/blog/BlogListScreen';
 import BlogDetailScreen from '@/screens/blog/BlogDetailScreen';
+import BlogCreateScreen from '@/screens/blog/BlogCreateScreen'
 
 export type RootStackParamList = {
   Home: undefined;
@@ -17,6 +18,7 @@ export type RootStackParamList = {
   BlogDetail: {
     postId: number;
   };
+  BlogCreate: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,6 +51,11 @@ export default function App() {
           name="BlogDetail"
           component={BlogDetailScreen}
           options={{ title: '블로그 글' }}
+        />
+        <Stack.Screen
+          name="BlogCreate"
+          component={BlogCreateScreen}
+          options={{ title: '새 글 작성' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
