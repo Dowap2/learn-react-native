@@ -8,6 +8,7 @@ export default {
     extra: {
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      adminPassword: process.env.EXPO_PUBLIC_ADMIN_PASSWORD,
     },
   },
 };
