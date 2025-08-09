@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  Image,
   TouchableOpacity,
   TextInput,
   Modal,
@@ -13,7 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from 'App';
 import List from '@/components/List';
-import logo from '../../assets/logo.png'
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 function HomeScreen({ navigation }: Props) {
@@ -22,7 +21,7 @@ function HomeScreen({ navigation }: Props) {
 
   const slideAnim = useRef(new Animated.Value(300)).current;
 
-  const openMenu = () => {
+  const openMenu = useCallback(() => {
     setMenuVisible(true);
 
     Animated.spring(slideAnim, {
@@ -31,7 +30,7 @@ function HomeScreen({ navigation }: Props) {
       tension: 60,
       useNativeDriver: true,
     }).start();
-  };
+  }, [slideAnim]);
 
   const closeMenu = () => {
     Animated.timing(slideAnim, {
@@ -40,6 +39,18 @@ function HomeScreen({ navigation }: Props) {
       useNativeDriver: true,
     }).start(() => setMenuVisible(false));
   };
+
+  // 🔹 여기서 네이티브 헤더에 햄버거 버튼 세팅
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: '홈',
+      headerLeft: () => (
+        <TouchableOpacity onPress={openMenu} style={{ paddingHorizontal: 12 }}>
+          <Ionicons name="menu" size={24} color="#000" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, openMenu]);
 
   const faqData = [
     {
@@ -64,21 +75,16 @@ function HomeScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={logo} style={styles.logo} />
+      {/* 🔹 이제 커스텀 header 뷰는 필요 없으니 제거 */}
+      {/* <View style={styles.header}>
         <TouchableOpacity onPress={openMenu}>
           <Ionicons name="menu" size={32} color="#000" />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <View style={styles.content}>
         <View style={styles.contentTitle}>
           <Text style={styles.title}>자주 묻는 질문</Text>
-          {/* <Image
-            // source={require('./assets/character.png')}
-            style={styles.icon}
-            resizeMode="contain"
-          /> */}
         </View>
 
         <View style={styles.searchRow}>
@@ -115,6 +121,7 @@ function HomeScreen({ navigation }: Props) {
         ))}
       </View>
 
+      {/* 사이드 메뉴 모달은 그대로 사용 */}
       <Modal visible={menuVisible} transparent animationType="none">
         <TouchableOpacity
           style={styles.overlay}
@@ -172,27 +179,15 @@ function HomeScreen({ navigation }: Props) {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', marginTop: 20 },
-  logo: { height: 18, width: 88 },
-  header: {
-    height: 80,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#F7F7F7',
-    padding: 16,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
   title: { fontSize: 32, fontWeight: 'bold', color: '#000' },
   content: { flex: 1, padding: 16 },
   contentTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 56,
+    marginTop: 16,
     marginBottom: 20,
   },
-  icon: { width: 44, height: 44 },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
