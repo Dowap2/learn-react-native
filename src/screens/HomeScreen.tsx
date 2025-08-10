@@ -40,7 +40,6 @@ function HomeScreen({ navigation }: Props) {
     }).start(() => setMenuVisible(false));
   };
 
-  // 🔹 여기서 네이티브 헤더에 햄버거 버튼 세팅
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: '홈',
@@ -75,13 +74,6 @@ function HomeScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* 🔹 이제 커스텀 header 뷰는 필요 없으니 제거 */}
-      {/* <View style={styles.header}>
-        <TouchableOpacity onPress={openMenu}>
-          <Ionicons name="menu" size={32} color="#000" />
-        </TouchableOpacity>
-      </View> */}
-
       <View style={styles.content}>
         <View style={styles.contentTitle}>
           <Text style={styles.title}>자주 묻는 질문</Text>
@@ -121,7 +113,6 @@ function HomeScreen({ navigation }: Props) {
         ))}
       </View>
 
-      {/* 사이드 메뉴 모달은 그대로 사용 */}
       <Modal visible={menuVisible} transparent animationType="none">
         <TouchableOpacity
           style={styles.overlay}
