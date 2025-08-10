@@ -20,7 +20,7 @@ type Post = {
   title: string;
   summary: string | null;
   created_at: string;
-  tags: string | null; // "회고,CSS" 같은 문자열
+  tags: string | null;
 };
 
 const ACCENT_COLOR = '#1E3A8A';
@@ -54,7 +54,6 @@ function BlogListScreen({ navigation }: Props) {
     fetchPosts();
   }, []);
 
-  // 전체 포스트에서 사용된 태그 목록 추출 (중복 제거)
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     posts.forEach((post) => {
@@ -68,7 +67,6 @@ function BlogListScreen({ navigation }: Props) {
     return Array.from(tagSet);
   }, [posts]);
 
-  // 선택된 태그에 따라 필터링된 포스트
   const filteredPosts = useMemo(() => {
     if (!selectedTag) return posts;
 
@@ -110,7 +108,6 @@ function BlogListScreen({ navigation }: Props) {
           </Text>
         )}
 
-        {/* 카드 내부 태그 표시 */}
         {tags.length > 0 && (
           <View style={styles.tagRow}>
             {tags.map((tag) => (
@@ -169,7 +166,6 @@ function BlogListScreen({ navigation }: Props) {
           새로 작성한 글을 한 곳에서 확인해보세요.
         </Text>
 
-        {/* 글 작성 버튼 */}
         <View style={styles.headerActions}>
           <TouchableOpacity
             style={styles.writeButton}
@@ -179,7 +175,6 @@ function BlogListScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
 
-        {/* 태그 필터 영역 */}
         {allTags.length > 0 && (
           <View style={styles.tagFilterContainer}>
             <ScrollView
@@ -287,7 +282,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // 태그 필터 영역
   tagFilterContainer: {
     marginTop: 14,
   },
@@ -321,7 +315,6 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
   },
 
-  // 카드
   itemContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
@@ -363,7 +356,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // 카드 내부 태그 표시
   tagRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -401,7 +393,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // 공통 상태
   center: {
     flex: 1,
     justifyContent: 'center',
