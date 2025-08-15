@@ -29,9 +29,12 @@ type Props = {
 
 type Post = {
   id: number;
-  title: string;
-  content: string;
-  summary: string | null;
+  title_ko: string | null;
+  content_ko: string | null;
+  title_en: string | null;
+  content_en: string | null;
+  summary_ko: string | null;
+  summary_en: string | null;
   created_at: string;
   tags: string | null;
 };
@@ -50,6 +53,7 @@ function BlogDetailScreen({ route, navigation }: Props) {
   const [password, setPassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [lang, setLang] = useState<'ko' | 'en'>('ko');
 
   const fetchPost = async () => {
     setLoading(true);
@@ -57,7 +61,19 @@ function BlogDetailScreen({ route, navigation }: Props) {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('id, title, summary, content, created_at, tags')
+      .select(
+        `
+          id,
+          title_ko,
+          content_ko,
+          title_en,
+          content_en,
+          summary_ko,
+          summary_en,
+          created_at,
+          tags
+        `,
+      )
       .eq('id', postId)
       .single();
 
@@ -135,6 +151,9 @@ function BlogDetailScreen({ route, navigation }: Props) {
   const dateStr = new Date(post.created_at).toLocaleDateString('ko-KR');
   const markdownStyles = createMarkdownStyles(ACCENT_COLOR);
 
+  const title = lang === 'ko' ? post.title_ko : post.title_en;
+  const content = lang === 'ko' ? post.content_ko : post.content_en;
+
   const tags = post.tags
     ? post.tags
         .split(',')
@@ -154,7 +173,7 @@ function BlogDetailScreen({ route, navigation }: Props) {
         <View style={styles.headerTopRow}>
           <View>
             <Text style={styles.headerLabel}>POST DETAIL</Text>
-            <Text style={styles.title}>{post.title}</Text>
+            <Text style={styles.title}>{title}</Text>
           </View>
 
           {/* 삭제 버튼 */}
@@ -230,9 +249,50 @@ function BlogDetailScreen({ route, navigation }: Props) {
 
       <View style={styles.card}>
         <Markdown style={markdownStyles}>
-          {post.content ?? '내용이 없습니다.'}
+          {content ?? '내용이 없습니다.'}
         </Markdown>
       </View>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ padding: 16 }}
+      >
+        {/* 언어 토글 UI */}
+        <View style={styles.langToggleRow}>
+          <TouchableOpacity
+            style={[
+              styles.langButton,
+              lang === 'ko' && styles.langButtonActive,
+            ]}
+            onPress={() => setLang('ko')}
+          >
+            <Text
+              style={[
+                styles.langButtonText,
+                lang === 'ko' && styles.langButtonTextActive,
+              ]}
+            >
+              한국어
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.langButton,
+              lang === 'en' && styles.langButtonActive,
+            ]}
+            onPress={() => setLang('en')}
+          >
+            <Text
+              style={[
+                styles.langButtonText,
+                lang === 'en' && styles.langButtonTextActive,
+              ]}
+            >
+              English
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </ScrollView>
   );
 }
@@ -415,6 +475,36 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  langToggleRow: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+    marginBottom: 12,
+    gap: 8 as any,
+  },
+  langButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+  },
+  langButtonActive: {
+    backgroundColor: '#1E3A8A',
+    borderColor: '#1E3A8A',
+  },
+  langButtonText: {
+    fontSize: 12,
+    color: '#555',
+  },
+  langButtonTextActive: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  emptyText: {
+    color: '#777',
+    marginTop: 8,
   },
 });
 
