@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  LayoutAnimation,
+} from "react-native";
 
 interface FAQItemProps {
   question: string;
@@ -9,7 +15,10 @@ interface FAQItemProps {
 export default function List({ question, answer }: FAQItemProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const toggle = () => setExpanded(!expanded);
+  const toggle = () => {
+    setExpanded(!expanded);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  };
 
   return (
     <View style={styles.accordionList}>

@@ -1,8 +1,25 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import List from "./List";
+import Camera from "./Camera";
 
-export default function App() {
+type RootStackParamList = {
+  Home: undefined;
+  Details: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function HomeScreen({ navigation }: any) {
   const onPressMenu = () => {
     console.log("햄버거 버튼 클릭!");
   };
@@ -49,8 +66,20 @@ export default function App() {
         {faqData.map((item, index) => (
           <List key={index} question={item.question} answer={item.answer} />
         ))}
+        <Button title="카메라" onPress={() => navigation.navigate("Details")} />
       </View>
     </View>
+  );
+}
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Details" component={Camera} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
