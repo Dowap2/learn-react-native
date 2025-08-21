@@ -18,12 +18,84 @@ type Props = NativeStackScreenProps<RootStackParamList, 'BlogCreate'>;
 
 const ACCENT_COLOR = '#1E3A8A';
 
+// Supabase Edge Function 번역 엔드포인트
+const TRANSLATE_ENDPOINT =
+  'https://uernuwypmjghqmyhqhnq.functions.supabase.co/translate-post';
+
+// Expo 환경변수에 이미 쓰고 있는 anon 키 사용
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
 function BlogCreateScreen({ navigation }: Props) {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState(''); // "회고, CSS" 이런 식으로 입력
+
+  // 🔹 영어 번역 결과 상태
+  const [titleEn, setTitleEn] = useState('');
+  const [contentEn, setContentEn] = useState('');
+
   const [loading, setLoading] = useState(false);
+  const [translating, setTranslating] = useState(false);
+
+  const handleTranslate = async () => {
+    if (!title.trim() || !content.trim()) {
+      Alert.alert('알림', '한국어 제목과 내용을 먼저 입력해주세요.');
+      return;
+    }
+
+    if (!SUPABASE_ANON_KEY) {
+      Alert.alert(
+        '환경 설정 오류',
+        'EXPO_PUBLIC_SUPABASE_ANON_KEY가 설정되어 있지 않습니다.',
+      );
+      return;
+    }
+
+    try {
+      setTranslating(true);
+
+      const res = await fetch(TRANSLATE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          titleKo: title.trim(),
+          contentKo: content,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.log('translate error:', text);
+        Alert.alert('오류', '번역에 실패했습니다.');
+        return;
+      }
+
+      const data = (await res.json()) as {
+        titleEn?: string;
+        contentEn?: string;
+        error?: string;
+        detail?: string;
+      };
+
+      if (data.error) {
+        console.log('translate error payload:', data);
+        Alert.alert('오류', data.error);
+        return;
+      }
+
+      setTitleEn(data.titleEn ?? '');
+      setContentEn(data.contentEn ?? '');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('오류', '번역 요청 중 문제가 발생했습니다.');
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -46,6 +118,8 @@ function BlogCreateScreen({ navigation }: Props) {
           summary: summary.trim() || null,
           content: content,
           tags: tags.trim() || null, // 그대로 콤마 문자열로 저장
+          // TODO: 나중에 다국어 스키마 정리되면
+          // title_ko, content_ko, title_en, content_en 도 같이 넣을 수 있음
         })
         .select('id')
         .single();
@@ -75,7 +149,7 @@ function BlogCreateScreen({ navigation }: Props) {
     >
       <StatusBar barStyle="dark-content" />
 
-      <Text style={styles.label}>제목</Text>
+      <Text style={styles.label}>제목 (한국어)</Text>
       <TextInput
         style={styles.input}
         value={title}
@@ -103,12 +177,47 @@ function BlogCreateScreen({ navigation }: Props) {
         multiline
       />
 
-      <Text style={styles.label}>내용 (Markdown)</Text>
+      <Text style={styles.label}>내용 (Markdown, 한국어)</Text>
       <TextInput
         style={[styles.input, styles.multilineInput, styles.contentInput]}
         value={content}
         onChangeText={setContent}
         placeholder="마크다운으로 내용을 작성해보세요"
+        placeholderTextColor="#9CA3AF"
+        multiline
+        textAlignVertical="top"
+      />
+
+      {/* 🔹 번역 버튼 + 영어 필드 섹션 */}
+      <View style={styles.translateRow}>
+        <TouchableOpacity
+          style={styles.translateButton}
+          onPress={handleTranslate}
+          disabled={translating}
+        >
+          {translating ? (
+            <ActivityIndicator color={ACCENT_COLOR} />
+          ) : (
+            <Text style={styles.translateButtonText}>영어 번역 생성 (AI)</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.label}>Title (English)</Text>
+      <TextInput
+        style={styles.input}
+        value={titleEn}
+        onChangeText={setTitleEn}
+        placeholder="English title (AI 번역 후 수정 가능)"
+        placeholderTextColor="#9CA3AF"
+      />
+
+      <Text style={styles.label}>Content (English, Markdown)</Text>
+      <TextInput
+        style={[styles.input, styles.multilineInput, styles.contentInput]}
+        value={contentEn}
+        onChangeText={setContentEn}
+        placeholder="English content (AI 번역 후 수정 가능)"
         placeholderTextColor="#9CA3AF"
         multiline
         textAlignVertical="top"
@@ -173,6 +282,24 @@ const styles = StyleSheet.create({
   },
   contentInput: {
     minHeight: 200,
+  },
+  translateRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+  },
+  translateButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: ACCENT_COLOR,
+    backgroundColor: '#FFFFFF',
+  },
+  translateButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: ACCENT_COLOR,
   },
   buttonRow: {
     flexDirection: 'row',
