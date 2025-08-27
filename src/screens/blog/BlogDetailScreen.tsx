@@ -176,7 +176,6 @@ function BlogDetailScreen({ route, navigation }: Props) {
             <Text style={styles.title}>{title}</Text>
           </View>
 
-          {/* 삭제 버튼 */}
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={handleDeletePress}
@@ -202,7 +201,6 @@ function BlogDetailScreen({ route, navigation }: Props) {
           </View>
         )}
 
-        {/* 비밀번호 입력 영역 */}
         {showDeleteBox && (
           <View style={styles.deleteBox}>
             <Text style={styles.deleteBoxLabel}>관리자 비밀번호</Text>
@@ -256,7 +254,6 @@ function BlogDetailScreen({ route, navigation }: Props) {
         style={styles.container}
         contentContainerStyle={{ padding: 16 }}
       >
-        {/* 언어 토글 UI */}
         <View style={styles.langToggleRow}>
           <TouchableOpacity
             style={[
