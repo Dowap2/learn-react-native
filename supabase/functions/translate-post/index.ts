@@ -1,15 +1,13 @@
 // supabase/functions/translate-post/index.ts
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
-
-const GEMINI_API_KEY = Deno.env.get('AI_API_KEY'); // <- Gemini 키를 여기 넣어둘 것
-const GEMINI_MODEL = "gemini-2.5-flash"; // ✅ 이렇게 변경
+const GEMINI_API_KEY = Deno.env.get('AI_API_KEY');
+const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_API_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 console.log("Gemini API Key loaded?", !!GEMINI_API_KEY);
 console.log("### USING GEMINI URL =", GEMINI_API_URL);
-console.log("### KEY LOADED?", !!GEMINI_API_KEY);
 
 type TranslateRequestBody = {
   titleKo: string;
@@ -76,14 +74,13 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // 4. Google Gemini로 번역 요청
-    // - gemini-1.5-flash 사용
-    // - 응답은 JSON 문자열로만 오게 response_mime_type 지정
     const prompt = [
       'You are a translation assistant for a developer blog.',
       'Translate the given Korean technical blog title and content into natural, clear English.',
       'Preserve Markdown structure, headings, and code blocks.',
       'Respond ONLY in valid JSON with this shape:',
       '{ "titleEn": "...", "contentEn": "..." }',
+      'Do NOT wrap your response in markdown code blocks.',
     ].join(' ');
 
     const userPayload = JSON.stringify({
@@ -92,28 +89,28 @@ serve(async (req: Request): Promise<Response> => {
     });
 
     const geminiRes = await fetch(
-  `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-  {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: prompt },
-            { text: userPayload }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.2
-      }
-    }),
-  },
-);
+      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: prompt },
+                { text: userPayload }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.2
+          }
+        }),
+      },
+    );
 
     if (!geminiRes.ok) {
       const errorText = await geminiRes.text();
@@ -132,14 +129,25 @@ serve(async (req: Request): Promise<Response> => {
     const contentText: string =
       geminiJson.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
+    console.log('Raw response from Gemini:', contentText);
+
     // 5. 모델 응답(JSON 문자열) 파싱
     let titleEn = '';
     let contentEn = '';
 
     try {
-      const parsed = JSON.parse(
-        contentText,
-      ) as Partial<TranslateResponseBody>;
+      // ✅ 마크다운 코드 블록 제거
+      let cleanText = contentText.trim();
+      
+      // ```json과 ``` 제거
+      cleanText = cleanText.replace(/^```json\s*/i, '');
+      cleanText = cleanText.replace(/^```\s*/, '');
+      cleanText = cleanText.replace(/\s*```$/, '');
+      cleanText = cleanText.trim();
+      
+      console.log('Cleaned text for parsing:', cleanText);
+      
+      const parsed = JSON.parse(cleanText) as Partial<TranslateResponseBody>;
       titleEn = parsed.titleEn ?? '';
       contentEn = parsed.contentEn ?? '';
     } catch (e) {

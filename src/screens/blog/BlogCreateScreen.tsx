@@ -70,23 +70,44 @@ function BlogCreateScreen({ navigation }: Props) {
         return;
       }
 
-      const data = (await res.json()) as {
-        titleEn?: string;
-        contentEn?: string;
-        error?: string;
-        detail?: string;
-      };
+      const data = await res.json();
+      console.log('서버 응답:', data);
 
       if (data.error) {
-        console.log('translate error payload:', data);
         Alert.alert('오류', data.error);
         return;
       }
 
-      setTitleEn(data.titleEn ?? '');
-      setContentEn(data.contentEn ?? '');
+      // ✅ 서버에서 이미 파싱해서 보내주므로 바로 사용
+      let finalTitleEn = data.titleEn || '';
+      let finalContentEn = data.contentEn || '';
+
+      // ✅ 혹시 서버에서 처리 못한 경우를 위한 클라이언트 백업 처리
+      if (!finalTitleEn && finalContentEn.includes('```json')) {
+        try {
+          let cleanText = finalContentEn.trim();
+          cleanText = cleanText.replace(/^```json\s*/i, '');
+          cleanText = cleanText.replace(/^```\s*/, '');
+          cleanText = cleanText.replace(/\s*```$/, '');
+          cleanText = cleanText.trim();
+
+          const parsed = JSON.parse(cleanText);
+          finalTitleEn = parsed.titleEn || '';
+          finalContentEn = parsed.contentEn || '';
+        } catch (e) {
+          console.log('클라이언트 JSON 파싱 실패:', e);
+        }
+      }
+
+      console.log('최종 titleEn:', finalTitleEn);
+      console.log('최종 contentEn:', finalContentEn);
+
+      setTitleEn(finalTitleEn);
+      setContentEn(finalContentEn);
+
+      Alert.alert('완료', '번역이 완료되었습니다!');
     } catch (e) {
-      console.error(e);
+      console.error('번역 에러:', e);
       Alert.alert('오류', '번역 요청 중 문제가 발생했습니다.');
     } finally {
       setTranslating(false);
@@ -114,6 +135,9 @@ function BlogCreateScreen({ navigation }: Props) {
           summary: summary.trim() || null,
           content: content,
           tags: tags.trim() || null,
+          // ✅ 영문 필드 추가
+          title_en: titleEn.trim() || null,
+          content_en: contentEn.trim() || null,
         })
         .select('id')
         .single();
