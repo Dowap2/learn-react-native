@@ -130,7 +130,7 @@ function BlogCreateScreen({ navigation }: Props) {
         .from('posts')
         .insert({
           title_ko: title.trim(),
-          summary: summary.trim() || null,
+          summary_ko: summary.trim() || null,
           content_ko: content,
           tags: tags.trim() || null,
           title_en: titleEn.trim() || null,

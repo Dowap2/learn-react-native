@@ -18,6 +18,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'BlogList'>;
 type Post = {
   id: number;
   title_ko: string;
+  title_en: string;
   summary_ko: string | null;
   created_at: string;
   tags: string | null;
@@ -98,7 +99,7 @@ function BlogListScreen({ navigation }: Props) {
         <View style={styles.itemHeaderRow}>
           <View style={styles.itemBadge} />
           <Text style={styles.itemTitle} numberOfLines={1}>
-            {item.title_ko}
+            {item.title_ko || item.title_en}
           </Text>
         </View>
 
