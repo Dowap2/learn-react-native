@@ -13,6 +13,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { supabase } from '@/libs/supabaseClient';
 import { RootStackParamList } from 'App';
+import Toast from 'react-native-toast-message';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogCreate'>;
 
@@ -78,15 +79,20 @@ function BlogCreateScreen({ route, navigation }: Props) {
 
   const handleTranslate = async () => {
     if (!title.trim() || !content.trim()) {
-      Alert.alert('알림', '한국어 제목과 내용을 먼저 입력해주세요.');
+      Toast.show({
+        type: 'error',
+        text1: '번역 불가',
+        text2: '한국어 제목과 내용을 먼저 입력해주세요.',
+      });
       return;
     }
 
     if (!SUPABASE_ANON_KEY) {
-      Alert.alert(
-        '환경 설정 오류',
-        'EXPO_PUBLIC_SUPABASE_ANON_KEY가 설정되어 있지 않습니다.',
-      );
+      Toast.show({
+        type: 'error',
+        text1: '환경 설정 오류',
+        text2: 'EXPO_PUBLIC_SUPABASE_ANON_KEY가 설정되어 있지 않습니다.',
+      });
       return;
     }
 
@@ -108,7 +114,11 @@ function BlogCreateScreen({ route, navigation }: Props) {
       if (!res.ok) {
         const text = await res.text();
         console.log('translate error:', text);
-        Alert.alert('오류', '번역에 실패했습니다.');
+        Toast.show({
+          type: 'error',
+          text1: '오류',
+          text2: '번역에 실패했습니다.',
+        });
         return;
       }
 
@@ -116,7 +126,11 @@ function BlogCreateScreen({ route, navigation }: Props) {
       console.log('서버 응답:', data);
 
       if (data.error) {
-        Alert.alert('오류', data.error);
+        Toast.show({
+          type: 'error',
+          text1: '오류',
+          text2: data.error,
+        });
         return;
       }
 
@@ -145,7 +159,11 @@ function BlogCreateScreen({ route, navigation }: Props) {
       setTitleEn(finalTitleEn);
       setContentEn(finalContentEn);
 
-      Alert.alert('완료', '번역이 완료되었습니다!');
+      Toast.show({
+        type: 'success',
+        text1: '번역 완료',
+        text2: '영문 제목과 내용이 채워졌습니다.',
+      });
     } catch (e) {
       console.error('번역 에러:', e);
       Alert.alert('오류', '번역 요청 중 문제가 발생했습니다.');
@@ -156,20 +174,24 @@ function BlogCreateScreen({ route, navigation }: Props) {
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert('제목을 입력해주세요.');
+      Toast.show({
+        type: 'error',
+        text1: '제목을 입력해주세요.',
+      });
       return;
     }
 
     if (!content.trim()) {
-      Alert.alert('내용을 입력해주세요.');
+      Toast.show({
+        type: 'error',
+        text1: '내용을 입력해주세요.',
+      });
       return;
     }
-
     setLoading(true);
 
     try {
       if (isEditMode && editingPostId) {
-        // ✅ 수정 모드: update
         const { error } = await supabase
           .from('posts')
           .update({
@@ -182,20 +204,22 @@ function BlogCreateScreen({ route, navigation }: Props) {
 
         if (error) {
           console.error(error);
-          Alert.alert('오류', '글 수정 중 문제가 발생했습니다.');
+          Toast.show({
+            type: 'error',
+            text1: '글 수정 실패',
+            text2: '잠시 후 다시 시도해주세요.',
+          });
           return;
         }
 
-        Alert.alert('완료', '글이 수정되었습니다.', [
-          {
-            text: '확인',
-            onPress: () => {
-              navigation.goBack(); // 상세로 돌아가거나, 필요하면 BlogDetail로 replace도 가능
-            },
-          },
-        ]);
+        Toast.show({
+          type: 'success',
+          text1: '글이 수정되었습니다.',
+          text2: '상세 페이지로 이동합니다.',
+        });
+
+        navigation.replace('BlogDetail', { postId: editingPostId });
       } else {
-        // ✅ 새 글 작성 모드: insert
         const { error } = await supabase.from('posts').insert([
           {
             title_ko: title,
@@ -207,17 +231,29 @@ function BlogCreateScreen({ route, navigation }: Props) {
 
         if (error) {
           console.error(error);
-          Alert.alert('오류', '글 작성 중 문제가 발생했습니다.');
+          Toast.show({
+            type: 'error',
+            text1: '글 작성 실패',
+            text2: '잠시 후 다시 시도해주세요.',
+          });
           return;
         }
 
-        Alert.alert('완료', '새 글이 등록되었습니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.goBack(),
-          },
-        ]);
+        Toast.show({
+          type: 'success',
+          text1: '새 글이 등록되었습니다.',
+          text2: '목록 화면으로 돌아갑니다.',
+        });
+
+        navigation.goBack();
       }
+    } catch (err) {
+      console.error('🔥 handleSubmit exception:', err);
+      Toast.show({
+        type: 'error',
+        text1: '알 수 없는 오류',
+        text2: '요청 처리 중 문제가 발생했습니다.',
+      });
     } finally {
       setLoading(false);
     }

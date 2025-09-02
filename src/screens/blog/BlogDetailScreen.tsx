@@ -16,12 +16,7 @@ import { RootStackParamList } from 'App';
 import Markdown from '@ronradtke/react-native-markdown-display';
 import Constants from 'expo-constants';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-// type BlogDetailRouteProp = RouteProp<RootStackParamList, 'BlogDetail'>;
-// type BlogDetailNavigationProp = NavigationProp<
-//   RootStackParamList,
-//   'BlogDetail'
-// >;
+import { useIsFocused } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogDetail'>;
 
@@ -43,6 +38,8 @@ const ADMIN_PASSWORD = extra.adminPassword;
 
 function BlogDetailScreen({ route, navigation }: Props) {
   const { postId } = route.params;
+  const isFocused = useIsFocused();
+
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,8 +83,9 @@ function BlogDetailScreen({ route, navigation }: Props) {
   };
 
   useEffect(() => {
+    if (!isFocused) return;
     fetchPost();
-  }, [postId]);
+  }, [isFocused, postId]);
 
   const handleDeletePress = () => {
     setShowDeleteBox((prev) => !prev);
