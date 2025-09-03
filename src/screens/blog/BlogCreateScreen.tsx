@@ -25,7 +25,7 @@ const TRANSLATE_ENDPOINT =
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 function BlogCreateScreen({ route, navigation }: Props) {
-  const editingPostId = route?.params?.editingPostId; // 없으면 undefined
+  const editingPostId = route?.params?.editingPostId;
   const isEditMode = !!editingPostId;
 
   const [title, setTitle] = useState('');

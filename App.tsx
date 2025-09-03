@@ -9,6 +9,7 @@ import ContactScreen from '@/screens/ContactScreen';
 import BlogListScreen from '@/screens/blog/BlogListScreen';
 import BlogDetailScreen from '@/screens/blog/BlogDetailScreen';
 import BlogCreateScreen from '@/screens/blog/BlogCreateScreen';
+import FaqScreen from '@/screens/FaqScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -19,6 +20,7 @@ export type RootStackParamList = {
     postId: number;
   };
   BlogCreate: { editingPostId?: number } | undefined;
+  FAQ: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -102,6 +104,7 @@ export default function App() {
             component={BlogCreateScreen}
             options={{ title: '새 글 작성' }}
           />
+          <Stack.Screen name="FAQ" component={FaqScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast config={toastConfig} />
