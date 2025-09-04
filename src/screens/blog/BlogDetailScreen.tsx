@@ -8,15 +8,14 @@ import {
   StatusBar,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from 'react-native';
-import { NavigationProp, RouteProp } from '@react-navigation/native';
 import { supabase } from '@/libs/supabaseClient';
 import type { RootStackParamList } from '@/navigation/types';
 import Markdown from '@ronradtke/react-native-markdown-display';
 import Constants from 'expo-constants';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogDetail'>;
 
@@ -115,14 +114,20 @@ function BlogDetailScreen({ route, navigation }: Props) {
       return;
     }
 
-    Alert.alert('삭제 완료', '게시글이 삭제되었습니다.', [
-      {
-        text: '확인',
-        onPress: () => {
-          navigation.goBack();
-        },
-      },
-    ]);
+    // ✅ 토스트 표시
+    Toast.show({
+      type: 'success',
+      text1: '삭제 완료',
+      text2: '게시글이 삭제되었습니다.',
+    });
+
+    // ✅ 약간의 딜레이 후 BlogList로 이동
+    setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'BlogList' }],
+      });
+    }, 1000);
   };
 
   const handleEditPress = () => {
@@ -172,7 +177,7 @@ function BlogDetailScreen({ route, navigation }: Props) {
 
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.headerLabel}>POST DETAIL</Text>
             <Text style={styles.title}>{title}</Text>
           </View>
@@ -210,6 +215,43 @@ function BlogDetailScreen({ route, navigation }: Props) {
             ))}
           </View>
         )}
+
+        {/* ✅ 언어 토글을 헤더로 이동 */}
+        <View style={styles.langToggleRow}>
+          <TouchableOpacity
+            style={[
+              styles.langButton,
+              lang === 'ko' && styles.langButtonActive,
+            ]}
+            onPress={() => setLang('ko')}
+          >
+            <Text
+              style={[
+                styles.langButtonText,
+                lang === 'ko' && styles.langButtonTextActive,
+              ]}
+            >
+              한국어
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.langButton,
+              lang === 'en' && styles.langButtonActive,
+            ]}
+            onPress={() => setLang('en')}
+          >
+            <Text
+              style={[
+                styles.langButtonText,
+                lang === 'en' && styles.langButtonTextActive,
+              ]}
+            >
+              English
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {showDeleteBox && (
           <View style={styles.deleteBox}>
@@ -260,46 +302,6 @@ function BlogDetailScreen({ route, navigation }: Props) {
           {content ?? '내용이 없습니다.'}
         </Markdown>
       </View>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{ padding: 16 }}
-      >
-        <View style={styles.langToggleRow}>
-          <TouchableOpacity
-            style={[
-              styles.langButton,
-              lang === 'ko' && styles.langButtonActive,
-            ]}
-            onPress={() => setLang('ko')}
-          >
-            <Text
-              style={[
-                styles.langButtonText,
-                lang === 'ko' && styles.langButtonTextActive,
-              ]}
-            >
-              한국어
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.langButton,
-              lang === 'en' && styles.langButtonActive,
-            ]}
-            onPress={() => setLang('en')}
-          >
-            <Text
-              style={[
-                styles.langButtonText,
-                lang === 'en' && styles.langButtonTextActive,
-              ]}
-            >
-              English
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
     </ScrollView>
   );
 }
@@ -332,6 +334,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#DC2626',
     textAlign: 'center',
+    marginBottom: 16,
+  },
+  backButton: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 999,
+    backgroundColor: ACCENT_COLOR,
+  },
+  backButtonText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  backButtonTop: {
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  backButtonTopText: {
+    fontSize: 13,
+    color: ACCENT_COLOR,
+    fontWeight: '600',
   },
   header: {
     marginBottom: 18,
@@ -352,7 +381,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F172A',
     marginBottom: 8,
-    maxWidth: 240,
   },
   metaRow: {
     flexDirection: 'row',
@@ -486,7 +514,8 @@ const styles = StyleSheet.create({
   langToggleRow: {
     flexDirection: 'row',
     alignSelf: 'flex-end',
-    marginBottom: 12,
+    marginTop: 12,
+    marginBottom: 4,
     gap: 8 as any,
   },
   langButton: {

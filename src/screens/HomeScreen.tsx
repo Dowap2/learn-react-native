@@ -7,71 +7,38 @@ import type { RootStackParamList } from '@/navigation/types';
 import HomeHeroCard from '@/components/home/HomeHeroCard';
 import HomeBlogSection from '@/components/home/HomeBlogSection';
 import HomeQuickActions from '@/components/home/HomeQuickActions';
-import SideMenu from '@/components/home/SideMenu';
+import SideMenu from '@/components/SideMenu';
 import { useRecentPosts } from '@/hooks/useRecentPosts';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 function HomeScreen({ navigation }: Props) {
-  const [menuVisible, setMenuVisible] = useState(false);
   const [blogSearch, setBlogSearch] = useState('');
 
   const { posts, loading, error } = useRecentPosts(3);
 
-  const openMenu = useCallback(() => {
-    setMenuVisible(true);
-  }, []);
-
-  const closeMenu = useCallback(() => {
-    setMenuVisible(false);
-  }, []);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: '홈',
-      headerLeft: () => (
-        <TouchableOpacity onPress={openMenu} style={{ paddingHorizontal: 12 }}>
-          <Ionicons name="menu" size={24} color="#000" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, openMenu]);
-
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <HomeHeroCard
-          onPressBlog={() => navigation.navigate('BlogList')}
-          onPressContact={() => navigation.navigate('Contact')}
-        />
+    <View style={styles.content}>
+      <HomeHeroCard
+        onPressBlog={() => navigation.navigate('BlogList')}
+        onPressContact={() => navigation.navigate('Contact')}
+      />
 
-        <HomeBlogSection
-          search={blogSearch}
-          onChangeSearch={setBlogSearch}
-          onPressSeeAll={() => navigation.navigate('BlogList')}
-          posts={posts}
-          loading={loading}
-          error={error}
-          onPressPost={(postId) =>
-            navigation.navigate('BlogDetail', { postId })
-          }
-        />
+      <HomeBlogSection
+        search={blogSearch}
+        onChangeSearch={setBlogSearch}
+        onPressSeeAll={() => navigation.navigate('BlogList')}
+        posts={posts}
+        loading={loading}
+        error={error}
+        onPressPost={(postId) => navigation.navigate('BlogDetail', { postId })}
+      />
 
-        <HomeQuickActions
-          onPressBlog={() => navigation.navigate('BlogList')}
-          onPressFAQ={() => navigation.navigate('FAQ')}
-          onPressCamera={() => navigation.navigate('Camera')}
-          onPressContact={() => navigation.navigate('Contact')}
-        />
-      </View>
-
-      <SideMenu
-        visible={menuVisible}
-        onClose={closeMenu}
-        onNavigate={(screen) => {
-          closeMenu();
-          navigation.navigate(screen);
-        }}
+      <HomeQuickActions
+        onPressBlog={() => navigation.navigate('BlogList')}
+        onPressFAQ={() => navigation.navigate('FAQ')}
+        onPressCamera={() => navigation.navigate('Camera')}
+        onPressContact={() => navigation.navigate('Contact')}
       />
     </View>
   );

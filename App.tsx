@@ -1,3 +1,4 @@
+import { useState, useCallback, useLayoutEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
@@ -10,6 +11,8 @@ import BlogListScreen from '@/screens/blog/BlogListScreen';
 import BlogDetailScreen from '@/screens/blog/BlogDetailScreen';
 import BlogCreateScreen from '@/screens/blog/BlogCreateScreen';
 import FaqScreen from '@/screens/FaqScreen';
+import SideMenu from '@/components/SideMenu';
+import HamburgerButton from '@/components/HamburgerButton';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -58,10 +61,33 @@ const toastConfig = {
 };
 
 export default function App() {
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const handleNavigate = (screen: any) => {
+    setMenuVisible(false);
+    // 네비게이션 처리는 SideMenu 컴포넌트에서 직접 하도록 수정 필요
+  };
+
   return (
     <>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: '#FFFFFF',
+            },
+            headerShadowVisible: true,
+            headerTintColor: '#1E3A8A',
+            headerTitleStyle: {
+              fontWeight: '700',
+              fontSize: 18,
+            },
+            // ✅ 모든 화면에 햄버거 버튼 추가
+            headerRight: () => (
+              <HamburgerButton onPress={() => setMenuVisible(true)} />
+            ),
+          }}
+        >
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -96,6 +122,11 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
       <Toast config={toastConfig} />
+      <SideMenu
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        onNavigate={handleNavigate}
+      />
     </>
   );
 }
