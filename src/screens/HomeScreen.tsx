@@ -1,13 +1,11 @@
-import React, { useLayoutEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 
 import HomeHeroCard from '@/components/home/HomeHeroCard';
 import HomeBlogSection from '@/components/home/HomeBlogSection';
 import HomeQuickActions from '@/components/home/HomeQuickActions';
-import SideMenu from '@/components/SideMenu';
 import { useRecentPosts } from '@/hooks/useRecentPosts';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;

@@ -1,8 +1,11 @@
 import { useState, useCallback, useLayoutEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 import HomeScreen from '@/screens/HomeScreen';
 import CameraScreen from '@/screens/CameraScreen';
@@ -14,7 +17,10 @@ import FaqScreen from '@/screens/FaqScreen';
 import SideMenu from '@/components/SideMenu';
 import HamburgerButton from '@/components/HamburgerButton';
 
+type MenuScreen = 'Home' | 'BlogList' | 'FAQ' | 'Camera' | 'Contact';
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 const ACCENT_COLOR = '#1E3A8A';
 
@@ -63,14 +69,17 @@ const toastConfig = {
 export default function App() {
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const handleNavigate = (screen: any) => {
+  const handleNavigate = (screen: MenuScreen) => {
     setMenuVisible(false);
-    // 네비게이션 처리는 SideMenu 컴포넌트에서 직접 하도록 수정 필요
+
+    if (navigationRef.isReady()) {
+      navigationRef.navigate(screen);
+    }
   };
 
   return (
     <>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
           screenOptions={{
             headerStyle: {
@@ -82,7 +91,6 @@ export default function App() {
               fontWeight: '700',
               fontSize: 18,
             },
-            // ✅ 모든 화면에 햄버거 버튼 추가
             headerRight: () => (
               <HamburgerButton onPress={() => setMenuVisible(true)} />
             ),
