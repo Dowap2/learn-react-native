@@ -27,6 +27,7 @@ import { ErrorView } from '@/components/common/ErrorView';
 import BlogPostHeader from '@/components/blog/BlogPostHeader';
 import BlogDeleteBox from '@/components/blog/BlogDeleteBox';
 import type { Language } from '@/types/blog.types';
+import { CommentSection } from '@/components/comment/commentSection';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogDetail'>;
 
@@ -171,6 +172,7 @@ function BlogDetailScreen({ route, navigation }: Props) {
           {content ?? '내용이 없습니다.'}
         </Markdown>
       </View>
+      <CommentSection postId={postId} />
     </ScrollView>
   );
 }
