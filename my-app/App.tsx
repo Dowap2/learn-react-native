@@ -14,7 +14,7 @@ import Camera from "./Camera";
 
 type RootStackParamList = {
   Home: undefined;
-  Details: undefined;
+  Camera: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -66,7 +66,7 @@ function HomeScreen({ navigation }: any) {
         {faqData.map((item, index) => (
           <List key={index} question={item.question} answer={item.answer} />
         ))}
-        <Button title="카메라" onPress={() => navigation.navigate("Details")} />
+        <Button title="카메라" onPress={() => navigation.navigate("Camera")} />
       </View>
     </View>
   );
@@ -77,7 +77,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Details" component={Camera} />
+        <Stack.Screen name="Camera" component={Camera} />
       </Stack.Navigator>
     </NavigationContainer>
   );
