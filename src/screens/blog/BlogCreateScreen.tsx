@@ -78,11 +78,9 @@ function BlogCreateScreen({ navigation }: Props) {
         return;
       }
 
-      // ✅ 서버에서 이미 파싱해서 보내주므로 바로 사용
       let finalTitleEn = data.titleEn || '';
       let finalContentEn = data.contentEn || '';
 
-      // ✅ 혹시 서버에서 처리 못한 경우를 위한 클라이언트 백업 처리
       if (!finalTitleEn && finalContentEn.includes('```json')) {
         try {
           let cleanText = finalContentEn.trim();
@@ -135,7 +133,6 @@ function BlogCreateScreen({ navigation }: Props) {
           summary: summary.trim() || null,
           content: content,
           tags: tags.trim() || null,
-          // ✅ 영문 필드 추가
           title_en: titleEn.trim() || null,
           content_en: contentEn.trim() || null,
         })
