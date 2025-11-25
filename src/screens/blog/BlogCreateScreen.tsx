@@ -18,20 +18,16 @@ type Props = NativeStackScreenProps<RootStackParamList, 'BlogCreate'>;
 
 const ACCENT_COLOR = '#1E3A8A';
 
-// Supabase Edge Function 번역 엔드포인트
 const TRANSLATE_ENDPOINT =
   'https://uernuwypmjghqmyhqhnq.functions.supabase.co/translate-post';
 
-// Expo 환경변수에 이미 쓰고 있는 anon 키 사용
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 function BlogCreateScreen({ navigation }: Props) {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
-  const [tags, setTags] = useState(''); // "회고, CSS" 이런 식으로 입력
-
-  // 🔹 영어 번역 결과 상태
+  const [tags, setTags] = useState('');
   const [titleEn, setTitleEn] = useState('');
   const [contentEn, setContentEn] = useState('');
 
@@ -117,9 +113,7 @@ function BlogCreateScreen({ navigation }: Props) {
           title: title.trim(),
           summary: summary.trim() || null,
           content: content,
-          tags: tags.trim() || null, // 그대로 콤마 문자열로 저장
-          // TODO: 나중에 다국어 스키마 정리되면
-          // title_ko, content_ko, title_en, content_en 도 같이 넣을 수 있음
+          tags: tags.trim() || null,
         })
         .select('id')
         .single();
@@ -130,7 +124,6 @@ function BlogCreateScreen({ navigation }: Props) {
         return;
       }
 
-      // 저장 성공 → 디테일 화면으로 이동
       if (data?.id) {
         navigation.replace('BlogDetail', { postId: data.id });
       } else {
@@ -188,7 +181,6 @@ function BlogCreateScreen({ navigation }: Props) {
         textAlignVertical="top"
       />
 
-      {/* 🔹 번역 버튼 + 영어 필드 섹션 */}
       <View style={styles.translateRow}>
         <TouchableOpacity
           style={styles.translateButton}
