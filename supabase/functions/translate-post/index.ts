@@ -1,8 +1,15 @@
 // supabase/functions/translate-post/index.ts
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
-const OPENAI_API_KEY = Deno.env.get('AI_API_KEY');
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+const GEMINI_API_KEY = Deno.env.get('AI_API_KEY'); // <- Gemini 키를 여기 넣어둘 것
+const GEMINI_MODEL = "gemini-2.5-flash"; // ✅ 이렇게 변경
+const GEMINI_API_URL =
+  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+console.log("Gemini API Key loaded?", !!GEMINI_API_KEY);
+console.log("### USING GEMINI URL =", GEMINI_API_URL);
+console.log("### KEY LOADED?", !!GEMINI_API_KEY);
 
 type TranslateRequestBody = {
   titleKo: string;
@@ -14,6 +21,12 @@ type TranslateResponseBody = {
   contentEn: string;
 };
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type',
+};
+
 function jsonResponse(
   body: Record<string, unknown>,
   status = 200,
@@ -21,12 +34,18 @@ function jsonResponse(
   return new Response(JSON.stringify(body), {
     status,
     headers: {
+      ...corsHeaders,
       'Content-Type': 'application/json; charset=utf-8',
     },
   });
 }
 
 serve(async (req: Request): Promise<Response> => {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   // 1. 메서드 체크
   if (req.method !== 'POST') {
     return jsonResponse(
@@ -36,8 +55,8 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   // 2. API 키 체크
-  if (!OPENAI_API_KEY) {
-    console.error('AI_API_KEY is not set in environment variables');
+  if (!GEMINI_API_KEY) {
+    console.error('AI_API_KEY (Gemini) is not set in environment variables');
     return jsonResponse(
       { error: 'AI_API_KEY is not configured on the server' },
       500,
@@ -56,43 +75,49 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // 4. OpenAI로 번역 요청
-    //   - gpt-4o-mini 사용
-    //   - 응답은 JSON 문자열 형태로만 돌려주도록 강하게 요청
-    const openaiRes = await fetch(OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        temperature: 0.2,
-        messages: [
-          {
-            role: 'system',
-            content: [
-              'You are a translation assistant for a developer blog.',
-              'Translate Korean technical blog posts into natural, clear English.',
-              'Preserve Markdown structure, headings, and code blocks.',
-              'Respond ONLY in valid JSON with this shape:',
-              '{ "titleEn": "...", "contentEn": "..." }',
-            ].join(' '),
-          },
-          {
-            role: 'user',
-            content: JSON.stringify({
-              titleKo,
-              contentKo,
-            }),
-          },
-        ],
-      }),
+    // 4. Google Gemini로 번역 요청
+    // - gemini-1.5-flash 사용
+    // - 응답은 JSON 문자열로만 오게 response_mime_type 지정
+    const prompt = [
+      'You are a translation assistant for a developer blog.',
+      'Translate the given Korean technical blog title and content into natural, clear English.',
+      'Preserve Markdown structure, headings, and code blocks.',
+      'Respond ONLY in valid JSON with this shape:',
+      '{ "titleEn": "...", "contentEn": "..." }',
+    ].join(' ');
+
+    const userPayload = JSON.stringify({
+      titleKo,
+      contentKo,
     });
 
-    if (!openaiRes.ok) {
-      const errorText = await openaiRes.text();
-      console.error('OpenAI API error:', errorText);
+    const geminiRes = await fetch(
+  `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: prompt },
+            { text: userPayload }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.2
+      }
+    }),
+  },
+);
+
+    if (!geminiRes.ok) {
+      const errorText = await geminiRes.text();
+      console.error('Gemini API error:', errorText);
 
       return jsonResponse(
         { error: 'AI translation failed', detail: errorText },
@@ -100,23 +125,28 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    const openaiJson = await openaiRes.json();
-    const content: string =
-      openaiJson.choices?.[0]?.message?.content ?? '';
+    const geminiJson = await geminiRes.json();
+
+    // Gemini 응답 구조:
+    // { candidates: [ { content: { parts: [ { text: '...JSON string...' } ] } } ] }
+    const contentText: string =
+      geminiJson.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
     // 5. 모델 응답(JSON 문자열) 파싱
     let titleEn = '';
     let contentEn = '';
 
     try {
-      const parsed = JSON.parse(content) as Partial<TranslateResponseBody>;
+      const parsed = JSON.parse(
+        contentText,
+      ) as Partial<TranslateResponseBody>;
       titleEn = parsed.titleEn ?? '';
       contentEn = parsed.contentEn ?? '';
     } catch (e) {
-      console.error('Failed to parse JSON from model:', e, content);
+      console.error('Failed to parse JSON from Gemini:', e, contentText);
       // 혹시 JSON으로 안 주면, 통째로 contentEn으로라도 돌려주기
       titleEn = '';
-      contentEn = content;
+      contentEn = contentText;
     }
 
     if (!contentEn) {
