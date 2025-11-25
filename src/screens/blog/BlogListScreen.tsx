@@ -17,8 +17,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'BlogList'>;
 
 type Post = {
   id: number;
-  title: string;
-  summary: string | null;
+  title_ko: string;
+  summary_ko: string | null;
   created_at: string;
   tags: string | null;
 };
@@ -37,7 +37,7 @@ function BlogListScreen({ navigation }: Props) {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('id, title, summary, created_at, tags')
+      .select('id, title_ko, summary_ko, created_at, tags')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -98,13 +98,13 @@ function BlogListScreen({ navigation }: Props) {
         <View style={styles.itemHeaderRow}>
           <View style={styles.itemBadge} />
           <Text style={styles.itemTitle} numberOfLines={1}>
-            {item.title}
+            {item.title_ko}
           </Text>
         </View>
 
-        {item.summary && (
+        {item.summary_ko && (
           <Text style={styles.itemSummary} numberOfLines={2}>
-            {item.summary}
+            {item.summary_ko}
           </Text>
         )}
 

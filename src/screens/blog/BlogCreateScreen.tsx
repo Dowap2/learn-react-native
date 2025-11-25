@@ -129,9 +129,9 @@ function BlogCreateScreen({ navigation }: Props) {
       const { data, error } = await supabase
         .from('posts')
         .insert({
-          title: title.trim(),
+          title_ko: title.trim(),
           summary: summary.trim() || null,
-          content: content,
+          content_ko: content,
           tags: tags.trim() || null,
           title_en: titleEn.trim() || null,
           content_en: contentEn.trim() || null,

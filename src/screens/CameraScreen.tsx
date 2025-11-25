@@ -15,10 +15,8 @@ import * as ImageManipulator from 'expo-image-manipulator';
 
 export default function Camera() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [
-    mediaPermission,
-    requestMediaPermission,
-  ] = MediaLibrary.usePermissions();
+  const [mediaPermission, requestMediaPermission] =
+    MediaLibrary.usePermissions();
 
   const cameraRef = useRef<CameraView>(null);
   const [facing, setFacing] = useState<'front' | 'back'>('back');
@@ -88,7 +86,6 @@ export default function Camera() {
     setImageUri(uri);
   };
 
-  // 4) 갤러리에 저장
   const saveToGallery = async () => {
     if (!imageUri) return;
     if (!mediaPermission?.granted) {
@@ -107,9 +104,7 @@ export default function Camera() {
     }
   };
 
-  // UI
   if (!imageUri) {
-    // 촬영/선택 전: 카메라 화면
     return (
       <View style={{ flex: 1, backgroundColor: '#000' }}>
         <CameraView ref={cameraRef} style={{ flex: 1 }} facing={facing} />
@@ -129,7 +124,6 @@ export default function Camera() {
     );
   }
 
-  // 촬영/선택 후: 미리보기 + 간단 편집
   return (
     <View style={{ flex: 1, backgroundColor: '#111' }}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>

@@ -1,4 +1,3 @@
-// App.tsx
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
@@ -8,7 +7,7 @@ import CameraScreen from '@/screens/CameraScreen';
 import ContactScreen from '@/screens/ContactScreen';
 import BlogListScreen from '@/screens/blog/BlogListScreen';
 import BlogDetailScreen from '@/screens/blog/BlogDetailScreen';
-import BlogCreateScreen from '@/screens/blog/BlogCreateScreen'
+import BlogCreateScreen from '@/screens/blog/BlogCreateScreen';
 
 export type RootStackParamList = {
   Home: undefined;

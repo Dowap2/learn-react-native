@@ -1,4 +1,3 @@
-// supabase/functions/translate-post/index.ts
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('AI_API_KEY');
@@ -39,12 +38,10 @@ function jsonResponse(
 }
 
 serve(async (req: Request): Promise<Response> => {
-  // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  // 1. 메서드 체크
   if (req.method !== 'POST') {
     return jsonResponse(
       { error: 'Only POST method is allowed' },
@@ -52,7 +49,6 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
-  // 2. API 키 체크
   if (!GEMINI_API_KEY) {
     console.error('AI_API_KEY (Gemini) is not set in environment variables');
     return jsonResponse(
@@ -62,7 +58,6 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    // 3. 요청 바디 파싱
     const body = (await req.json()) as Partial<TranslateRequestBody>;
     const { titleKo, contentKo } = body;
 
@@ -73,7 +68,6 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // 4. Google Gemini로 번역 요청
     const prompt = [
       'You are a translation assistant for a developer blog.',
       'Translate the given Korean technical blog title and content into natural, clear English.',
@@ -124,22 +118,16 @@ serve(async (req: Request): Promise<Response> => {
 
     const geminiJson = await geminiRes.json();
 
-    // Gemini 응답 구조:
-    // { candidates: [ { content: { parts: [ { text: '...JSON string...' } ] } } ] }
     const contentText: string =
       geminiJson.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
     console.log('Raw response from Gemini:', contentText);
 
-    // 5. 모델 응답(JSON 문자열) 파싱
     let titleEn = '';
     let contentEn = '';
 
     try {
-      // ✅ 마크다운 코드 블록 제거
       let cleanText = contentText.trim();
-      
-      // ```json과 ``` 제거
       cleanText = cleanText.replace(/^```json\s*/i, '');
       cleanText = cleanText.replace(/^```\s*/, '');
       cleanText = cleanText.replace(/\s*```$/, '');
@@ -152,7 +140,6 @@ serve(async (req: Request): Promise<Response> => {
       contentEn = parsed.contentEn ?? '';
     } catch (e) {
       console.error('Failed to parse JSON from Gemini:', e, contentText);
-      // 혹시 JSON으로 안 주면, 통째로 contentEn으로라도 돌려주기
       titleEn = '';
       contentEn = contentText;
     }
@@ -164,7 +151,6 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // 6. 최종 응답
     const responseBody: TranslateResponseBody = {
       titleEn,
       contentEn,
