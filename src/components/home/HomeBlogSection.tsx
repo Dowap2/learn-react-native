@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { RecentPost } from '@/hooks/useRecentPosts';
+import { useSearchPosts } from '@/hooks/useSearchPosts';
 
 const ACCENT_COLOR = '#1E3A8A';
 
@@ -25,11 +26,29 @@ function HomeBlogSection({
   search,
   onChangeSearch,
   onPressSeeAll,
-  posts,
-  loading,
-  error,
+  posts: recentPosts,
+  loading: recentLoading,
+  error: recentError,
   onPressPost,
 }: Props) {
+  const shouldSearch = search.trim().length > 0;
+
+  const {
+    posts: searchedPosts,
+    loading: searchLoading,
+    error: searchError,
+  } = useSearchPosts(search, { onlyTitle: true });
+
+  const displayPosts = shouldSearch ? searchedPosts : recentPosts;
+  const loading = shouldSearch ? searchLoading : recentLoading;
+  const error = shouldSearch ? searchError : recentError;
+
+  const noPosts =
+    !loading && !error && displayPosts.length === 0 && !shouldSearch;
+
+  const noSearchResult =
+    !loading && !error && displayPosts.length === 0 && shouldSearch;
+
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeaderRow}>
@@ -46,7 +65,7 @@ function HomeBlogSection({
       <View style={styles.searchRow}>
         <TextInput
           style={styles.searchInput}
-          placeholder="블로그 글 제목으로 검색 (향후 확장)"
+          placeholder="제목으로 검색 (전체 글 대상)"
           value={search}
           onChangeText={onChangeSearch}
           placeholderTextColor="#9CA3AF"
@@ -54,12 +73,16 @@ function HomeBlogSection({
       </View>
 
       <View style={styles.placeholderCard}>
-        <Text style={styles.placeholderTitle}>최근 글</Text>
+        <Text style={styles.placeholderTitle}>
+          {shouldSearch ? '검색 결과' : '최근 글'}
+        </Text>
 
         {loading && (
           <View style={styles.stateRow}>
             <ActivityIndicator size="small" color={ACCENT_COLOR} />
-            <Text style={styles.stateText}>최근 글을 불러오는 중...</Text>
+            <Text style={styles.stateText}>
+              {shouldSearch ? '검색 중입니다...' : '최근 글을 불러오는 중...'}
+            </Text>
           </View>
         )}
 
@@ -67,15 +90,21 @@ function HomeBlogSection({
           <Text style={[styles.stateText, styles.errorText]}>{error}</Text>
         )}
 
-        {!loading && !error && posts.length === 0 && (
+        {noPosts && (
           <Text style={styles.stateText}>
             아직 등록된 글이 없습니다. 첫 글을 작성해보세요.
           </Text>
         )}
 
+        {noSearchResult && (
+          <Text style={styles.stateText}>
+            "{search}"에 해당하는 글이 없습니다.
+          </Text>
+        )}
+
         {!loading &&
           !error &&
-          posts.map((post) => (
+          displayPosts.map((post) => (
             <TouchableOpacity
               key={post.id}
               style={styles.postRow}

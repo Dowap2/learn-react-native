@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '@/libs/supabaseClient';
 import type { RootStackParamList } from '@/navigation/types';
 
@@ -38,7 +39,7 @@ function BlogListScreen({ navigation }: Props) {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('id, title_ko, summary_ko, created_at, tags')
+      .select('id, title_ko, title_en, summary_ko, created_at, tags')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -51,9 +52,12 @@ function BlogListScreen({ navigation }: Props) {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  // ✅ 화면에 포커스될 때마다 글 목록 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+    }, []),
+  );
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();

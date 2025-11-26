@@ -18,10 +18,8 @@ import Toast from 'react-native-toast-message';
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogCreate'>;
 
 const ACCENT_COLOR = '#1E3A8A';
-
 const TRANSLATE_ENDPOINT =
   'https://uernuwypmjghqmyhqhnq.functions.supabase.co/translate-post';
-
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 function BlogCreateScreen({ route, navigation }: Props) {
@@ -40,7 +38,6 @@ function BlogCreateScreen({ route, navigation }: Props) {
   const [initialLoading, setInitialLoading] = useState(false);
 
   useEffect(() => {
-    // 새 글 작성 모드면 아무것도 안 함
     if (!editingPostId) return;
 
     const loadPost = async () => {
@@ -49,12 +46,14 @@ function BlogCreateScreen({ route, navigation }: Props) {
         .from('posts')
         .select(
           `
-            id,
-            title_ko,
-            content_ko,
-            summary_ko,
-            tags
-          `,
+          id,
+          title_ko,
+          content_ko,
+          summary_ko,
+          tags,
+          title_en,
+          content_en
+        `,
         )
         .eq('id', editingPostId)
         .single();
@@ -65,11 +64,13 @@ function BlogCreateScreen({ route, navigation }: Props) {
         return;
       }
 
-      // ✅ 입력칸에 기존 값 세팅
+      // ✅ 한국어 + 영어 모두 세팅
       setTitle(data.title_ko ?? '');
       setSummary(data.summary_ko ?? '');
       setContent(data.content_ko ?? '');
       setTags(data.tags ?? '');
+      setTitleEn(data.title_en ?? '');
+      setContentEn(data.content_en ?? '');
 
       setInitialLoading(false);
     };
@@ -98,7 +99,6 @@ function BlogCreateScreen({ route, navigation }: Props) {
 
     try {
       setTranslating(true);
-
       const res = await fetch(TRANSLATE_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -188,18 +188,25 @@ function BlogCreateScreen({ route, navigation }: Props) {
       });
       return;
     }
+
     setLoading(true);
 
     try {
+      // ✅ 저장할 데이터 (한국어 + 영어 모두 포함)
+      const postData = {
+        title_ko: title.trim(),
+        summary_ko: summary.trim() || null,
+        content_ko: content.trim(),
+        tags: tags.trim() || null,
+        title_en: titleEn.trim() || null,
+        content_en: contentEn.trim() || null,
+      };
+
       if (isEditMode && editingPostId) {
+        // ✅ 수정 모드: UPDATE
         const { error } = await supabase
           .from('posts')
-          .update({
-            title_ko: title,
-            summary_ko: summary || null,
-            content_ko: content,
-            tags: tags || null,
-          })
+          .update(postData)
           .eq('id', editingPostId);
 
         if (error) {
@@ -217,17 +224,10 @@ function BlogCreateScreen({ route, navigation }: Props) {
           text1: '글이 수정되었습니다.',
           text2: '상세 페이지로 이동합니다.',
         });
-
         navigation.replace('BlogDetail', { postId: editingPostId });
       } else {
-        const { error } = await supabase.from('posts').insert([
-          {
-            title_ko: title,
-            summary_ko: summary || null,
-            content_ko: content,
-            tags: tags || null,
-          },
-        ]);
+        // ✅ 작성 모드: INSERT
+        const { error } = await supabase.from('posts').insert([postData]);
 
         if (error) {
           console.error(error);
@@ -244,7 +244,6 @@ function BlogCreateScreen({ route, navigation }: Props) {
           text1: '새 글이 등록되었습니다.',
           text2: '목록 화면으로 돌아갑니다.',
         });
-
         navigation.goBack();
       }
     } catch (err) {
@@ -271,110 +270,113 @@ function BlogCreateScreen({ route, navigation }: Props) {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <Text style={styles.screenTitle}>
-        {isEditMode ? '글 수정' : '새 글 작성'}
-      </Text>
-      <Text style={styles.label}>제목 (한국어)</Text>
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="제목을 입력하세요"
-        placeholderTextColor="#9CA3AF"
-      />
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.screenTitle}>
+          {isEditMode ? '글 수정' : '새 글 작성'}
+        </Text>
 
-      <Text style={styles.label}>태그 (쉼표로 구분)</Text>
-      <TextInput
-        style={styles.input}
-        value={tags}
-        onChangeText={setTags}
-        placeholder="예: 회고, CSS, React"
-        placeholderTextColor="#9CA3AF"
-      />
+        <Text style={styles.label}>제목 (한국어)</Text>
+        <TextInput
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="예: 내 첫 블로그 포스트"
+          placeholderTextColor="#9CA3AF"
+        />
 
-      <Text style={styles.label}>요약 (선택)</Text>
-      <TextInput
-        style={[styles.input, styles.multilineInput]}
-        value={summary}
-        onChangeText={setSummary}
-        placeholder="목록에 표시될 짧은 요약을 입력하세요"
-        placeholderTextColor="#9CA3AF"
-        multiline
-      />
+        <Text style={styles.label}>태그 (쉼표로 구분)</Text>
+        <TextInput
+          style={styles.input}
+          value={tags}
+          onChangeText={setTags}
+          placeholder="예: React, TypeScript, Supabase"
+          placeholderTextColor="#9CA3AF"
+        />
 
-      <Text style={styles.label}>내용 (Markdown, 한국어)</Text>
-      <TextInput
-        style={[styles.input, styles.multilineInput, styles.contentInput]}
-        value={content}
-        onChangeText={setContent}
-        placeholder="마크다운으로 내용을 작성해보세요"
-        placeholderTextColor="#9CA3AF"
-        multiline
-        textAlignVertical="top"
-      />
+        <Text style={styles.label}>요약 (선택)</Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          value={summary}
+          onChangeText={setSummary}
+          placeholder="간단한 요약을 입력하세요"
+          placeholderTextColor="#9CA3AF"
+          multiline
+        />
 
-      <View style={styles.translateRow}>
-        <TouchableOpacity
-          style={styles.translateButton}
-          onPress={handleTranslate}
-          disabled={translating}
-        >
-          {translating ? (
-            <ActivityIndicator color={ACCENT_COLOR} />
-          ) : (
-            <Text style={styles.translateButtonText}>영어 번역 생성 (AI)</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+        <Text style={styles.label}>내용 (Markdown, 한국어)</Text>
+        <TextInput
+          style={[styles.input, styles.contentInput]}
+          value={content}
+          onChangeText={setContent}
+          placeholder="본문 내용을 Markdown 형식으로 작성하세요"
+          placeholderTextColor="#9CA3AF"
+          multiline
+        />
 
-      <Text style={styles.label}>Title (English)</Text>
-      <TextInput
-        style={styles.input}
-        value={titleEn}
-        onChangeText={setTitleEn}
-        placeholder="English title (AI 번역 후 수정 가능)"
-        placeholderTextColor="#9CA3AF"
-      />
+        <View style={styles.translateRow}>
+          <TouchableOpacity
+            style={styles.translateButton}
+            onPress={handleTranslate}
+            disabled={translating}
+          >
+            {translating ? (
+              <ActivityIndicator size="small" color={ACCENT_COLOR} />
+            ) : (
+              <Text style={styles.translateButtonText}>
+                영어 번역 생성 (AI)
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
-      <Text style={styles.label}>Content (English, Markdown)</Text>
-      <TextInput
-        style={[styles.input, styles.multilineInput, styles.contentInput]}
-        value={contentEn}
-        onChangeText={setContentEn}
-        placeholder="English content (AI 번역 후 수정 가능)"
-        placeholderTextColor="#9CA3AF"
-        multiline
-        textAlignVertical="top"
-      />
+        <Text style={styles.label}>Title (English)</Text>
+        <TextInput
+          style={styles.input}
+          value={titleEn}
+          onChangeText={setTitleEn}
+          placeholder="English title (optional)"
+          placeholderTextColor="#9CA3AF"
+        />
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          onPress={() => navigation.goBack()}
-          disabled={loading}
-        >
-          <Text style={[styles.buttonText, styles.cancelButtonText]}>취소</Text>
-        </TouchableOpacity>
+        <Text style={styles.label}>Content (English, Markdown)</Text>
+        <TextInput
+          style={[styles.input, styles.contentInput]}
+          value={contentEn}
+          onChangeText={setContentEn}
+          placeholder="English content (optional)"
+          placeholderTextColor="#9CA3AF"
+          multiline
+        />
 
-        <TouchableOpacity
-          style={[styles.button, styles.submitButton]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>작성 완료</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={() => navigation.goBack()}
+            disabled={loading}
+          >
+            <Text style={[styles.buttonText, styles.cancelButtonText]}>
+              취소
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.submitButton]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={styles.buttonText}>
+                {isEditMode ? '수정 완료' : '작성 완료'}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 

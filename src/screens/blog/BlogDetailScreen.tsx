@@ -127,9 +127,6 @@ function BlogDetailScreen({ route, navigation }: Props) {
 
   const handleEditPress = () => {
     if (!post) return;
-
-    // BlogCreate에서 route.params?.editingPostId로 받아서
-    // 수정 모드로 동작하게 만들면 됨
     navigation.navigate('BlogCreate', { editingPostId: post.id });
   };
 
