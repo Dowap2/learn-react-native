@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -23,7 +23,10 @@ const TRANSLATE_ENDPOINT =
 
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-function BlogCreateScreen({ navigation }: Props) {
+function BlogCreateScreen({ route, navigation }: Props) {
+  const editingPostId = route?.params?.editingPostId; // 없으면 undefined
+  const isEditMode = !!editingPostId;
+
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
@@ -33,6 +36,45 @@ function BlogCreateScreen({ navigation }: Props) {
 
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
+
+  useEffect(() => {
+    // 새 글 작성 모드면 아무것도 안 함
+    if (!editingPostId) return;
+
+    const loadPost = async () => {
+      setInitialLoading(true);
+      const { data, error } = await supabase
+        .from('posts')
+        .select(
+          `
+            id,
+            title_ko,
+            content_ko,
+            summary_ko,
+            tags
+          `,
+        )
+        .eq('id', editingPostId)
+        .single();
+
+      if (error || !data) {
+        Alert.alert('오류', '글 정보를 불러오지 못했습니다.');
+        setInitialLoading(false);
+        return;
+      }
+
+      // ✅ 입력칸에 기존 값 세팅
+      setTitle(data.title_ko ?? '');
+      setSummary(data.summary_ko ?? '');
+      setContent(data.content_ko ?? '');
+      setTags(data.tags ?? '');
+
+      setInitialLoading(false);
+    };
+
+    loadPost();
+  }, [editingPostId]);
 
   const handleTranslate = async () => {
     if (!title.trim() || !content.trim()) {
@@ -123,37 +165,74 @@ function BlogCreateScreen({ navigation }: Props) {
       return;
     }
 
+    setLoading(true);
+
     try {
-      setLoading(true);
+      if (isEditMode && editingPostId) {
+        // ✅ 수정 모드: update
+        const { error } = await supabase
+          .from('posts')
+          .update({
+            title_ko: title,
+            summary_ko: summary || null,
+            content_ko: content,
+            tags: tags || null,
+          })
+          .eq('id', editingPostId);
 
-      const { data, error } = await supabase
-        .from('posts')
-        .insert({
-          title_ko: title.trim(),
-          summary_ko: summary.trim() || null,
-          content_ko: content,
-          tags: tags.trim() || null,
-          title_en: titleEn.trim() || null,
-          content_en: contentEn.trim() || null,
-        })
-        .select('id')
-        .single();
+        if (error) {
+          console.error(error);
+          Alert.alert('오류', '글 수정 중 문제가 발생했습니다.');
+          return;
+        }
 
-      if (error) {
-        console.log(error);
-        Alert.alert('오류', '글을 저장하는 중 오류가 발생했습니다.');
-        return;
-      }
-
-      if (data?.id) {
-        navigation.replace('BlogDetail', { postId: data.id });
+        Alert.alert('완료', '글이 수정되었습니다.', [
+          {
+            text: '확인',
+            onPress: () => {
+              navigation.goBack(); // 상세로 돌아가거나, 필요하면 BlogDetail로 replace도 가능
+            },
+          },
+        ]);
       } else {
-        navigation.goBack();
+        // ✅ 새 글 작성 모드: insert
+        const { error } = await supabase.from('posts').insert([
+          {
+            title_ko: title,
+            summary_ko: summary || null,
+            content_ko: content,
+            tags: tags || null,
+          },
+        ]);
+
+        if (error) {
+          console.error(error);
+          Alert.alert('오류', '글 작성 중 문제가 발생했습니다.');
+          return;
+        }
+
+        Alert.alert('완료', '새 글이 등록되었습니다.', [
+          {
+            text: '확인',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
       }
     } finally {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={ACCENT_COLOR} />
+        <Text style={styles.loadingText}>
+          {isEditMode ? '글 정보를 불러오는 중...' : '로딩 중...'}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -162,7 +241,9 @@ function BlogCreateScreen({ navigation }: Props) {
       keyboardShouldPersistTaps="handled"
     >
       <StatusBar barStyle="dark-content" />
-
+      <Text style={styles.screenTitle}>
+        {isEditMode ? '글 수정' : '새 글 작성'}
+      </Text>
       <Text style={styles.label}>제목 (한국어)</Text>
       <TextInput
         style={styles.input}
@@ -264,6 +345,24 @@ function BlogCreateScreen({ navigation }: Props) {
 export default BlogCreateScreen;
 
 const styles = StyleSheet.create({
+  loadingText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 20,
+  },
+  screenTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 18,
+  },
   container: {
     flex: 1,
     backgroundColor: '#F3F4F6',
