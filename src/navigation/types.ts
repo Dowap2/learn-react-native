@@ -8,6 +8,8 @@ export type RootStackParamList = {
   BlogDetail: {
     postId: number;
   };
+  BlogCreate: { editingPostId?: number } | undefined;
+  FAQ: undefined;
 };
 
 export type RootStackScreenProps<RouteName extends keyof RootStackParamList> = {

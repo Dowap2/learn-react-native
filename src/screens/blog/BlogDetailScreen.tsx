@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 import { supabase } from '@/libs/supabaseClient';
-import { RootStackParamList } from 'App';
+import type { RootStackParamList } from '@/navigation/types';
 import Markdown from '@ronradtke/react-native-markdown-display';
 import Constants from 'expo-constants';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';

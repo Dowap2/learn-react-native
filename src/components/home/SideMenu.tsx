@@ -7,7 +7,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import { RootStackParamList } from 'App';
 
 type MenuScreen = 'Home' | 'BlogList' | 'FAQ' | 'Camera' | 'Contact';
 

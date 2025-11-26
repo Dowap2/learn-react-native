@@ -11,18 +11,6 @@ import BlogDetailScreen from '@/screens/blog/BlogDetailScreen';
 import BlogCreateScreen from '@/screens/blog/BlogCreateScreen';
 import FaqScreen from '@/screens/FaqScreen';
 
-export type RootStackParamList = {
-  Home: undefined;
-  Camera: undefined;
-  Contact: undefined;
-  BlogList: undefined;
-  BlogDetail: {
-    postId: number;
-  };
-  BlogCreate: { editingPostId?: number } | undefined;
-  FAQ: undefined;
-};
-
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const ACCENT_COLOR = '#1E3A8A';
