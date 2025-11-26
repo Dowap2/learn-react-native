@@ -15,17 +15,15 @@ import { supabase } from '@/libs/supabaseClient';
 import { RootStackParamList } from 'App';
 import Markdown from '@ronradtke/react-native-markdown-display';
 import Constants from 'expo-constants';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-type BlogDetailRouteProp = RouteProp<RootStackParamList, 'BlogDetail'>;
-type BlogDetailNavigationProp = NavigationProp<
-  RootStackParamList,
-  'BlogDetail'
->;
+// type BlogDetailRouteProp = RouteProp<RootStackParamList, 'BlogDetail'>;
+// type BlogDetailNavigationProp = NavigationProp<
+//   RootStackParamList,
+//   'BlogDetail'
+// >;
 
-type Props = {
-  route: BlogDetailRouteProp;
-  navigation: BlogDetailNavigationProp;
-};
+type Props = NativeStackScreenProps<RootStackParamList, 'BlogDetail'>;
 
 type Post = {
   id: number;
@@ -129,6 +127,14 @@ function BlogDetailScreen({ route, navigation }: Props) {
     ]);
   };
 
+  const handleEditPress = () => {
+    if (!post) return;
+
+    // BlogCreate에서 route.params?.editingPostId로 받아서
+    // 수정 모드로 동작하게 만들면 됨
+    navigation.navigate('BlogCreate', { editingPostId: post.id });
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -176,12 +182,21 @@ function BlogDetailScreen({ route, navigation }: Props) {
             <Text style={styles.title}>{title}</Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={handleDeletePress}
-          >
-            <Text style={styles.deleteButtonText}>삭제</Text>
-          </TouchableOpacity>
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={handleEditPress}
+            >
+              <Text style={styles.editButtonText}>수정</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeletePress}
+            >
+              <Text style={styles.deleteButtonText}>삭제</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.metaRow}>
@@ -502,6 +517,24 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#777',
     marginTop: 8,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  editButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: ACCENT_COLOR,
+    backgroundColor: '#EFF6FF',
+    marginRight: 8,
+  },
+  editButtonText: {
+    fontSize: 12,
+    color: ACCENT_COLOR,
+    fontWeight: '600',
   },
 });
 

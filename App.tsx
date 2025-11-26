@@ -17,7 +17,7 @@ export type RootStackParamList = {
   BlogDetail: {
     postId: number;
   };
-  BlogCreate: undefined;
+  BlogCreate: { editingPostId?: number } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
