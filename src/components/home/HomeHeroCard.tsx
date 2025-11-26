@@ -1,21 +1,30 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 const ACCENT_COLOR = '#1E3A8A';
 
 type Props = {
   onPressBlog: () => void;
   onPressContact: () => void;
+  onPressGithub: () => void;
+  onPressEmail: () => void;
 };
 
-function HomeHeroCard({ onPressBlog, onPressContact }: Props) {
+function HomeHeroCard({
+  onPressBlog,
+  onPressContact,
+  onPressGithub,
+  onPressEmail,
+}: Props) {
   return (
     <View style={styles.heroCard}>
-      <Text style={styles.heroLabel}>ABOUT</Text>
-      <Text style={styles.heroTitle}>프론트엔드 개발자 오경태</Text>
+      <Text style={styles.heroLabel}>PROJECT</Text>
+      <Text style={styles.heroTitle}>All-in-One React Native App</Text>
+
       <Text style={styles.heroSubtitle}>
-        React Native로 블로그, FAQ, 카메라 등 다양한 기능을 하나의 앱으로 구현한
-        개인 프로젝트입니다.
+        블로그 · FAQ · 카메라 · 문의 페이지 기능을 하나의 앱으로 통합한 개인
+        프로젝트입니다.
       </Text>
 
       <View style={styles.heroButtonRow}>
@@ -33,6 +42,24 @@ function HomeHeroCard({ onPressBlog, onPressContact }: Props) {
           <Text style={styles.heroSecondaryText}>문의하기</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.iconRow}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={onPressGithub}
+          activeOpacity={0.8}
+        >
+          <Feather name="github" size={22} color={ACCENT_COLOR} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={onPressEmail}
+          activeOpacity={0.8}
+        >
+          <Feather name="mail" size={22} color={ACCENT_COLOR} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -43,7 +70,7 @@ const styles = StyleSheet.create({
   heroCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
-    padding: 16,
+    padding: 18,
     marginTop: 16,
     marginBottom: 20,
     borderWidth: 1,
@@ -70,11 +97,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#4B5563',
     lineHeight: 18,
-    marginBottom: 14,
+    marginBottom: 18,
   },
   heroButtonRow: {
     flexDirection: 'row',
-    marginTop: 4,
+    marginBottom: 18,
   },
   heroPrimaryButton: {
     paddingHorizontal: 16,
@@ -100,5 +127,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
     color: '#4B5563',
+  },
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  iconButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
   },
 });

@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
+import * as Linking from 'expo-linking';
 
 import HomeHeroCard from '@/components/home/HomeHeroCard';
 import HomeBlogSection from '@/components/home/HomeBlogSection';
@@ -20,6 +21,8 @@ function HomeScreen({ navigation }: Props) {
       <HomeHeroCard
         onPressBlog={() => navigation.navigate('BlogList')}
         onPressContact={() => navigation.navigate('Contact')}
+        onPressGithub={() => Linking.openURL('https://github.com/Dowap2')}
+        onPressEmail={() => Linking.openURL('mailto:dowapdowari@gmail.com')}
       />
 
       <HomeBlogSection
