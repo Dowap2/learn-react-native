@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/libs/supabaseClient';
 import { CONFIG } from '@/constants/config';
 
-export const useBlogDelete = () => {
+export const useBlogDelete = (postId: number) => {
   const [showDeleteBox, setShowDeleteBox] = useState(false);
   const [password, setPassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -14,7 +14,7 @@ export const useBlogDelete = () => {
     setDeleteError(null);
   };
 
-  const confirmDelete = async (postId: number): Promise<boolean> => {
+  const confirmDelete = async (): Promise<boolean> => {
     setDeleteError(null);
 
     if (password !== CONFIG.ADMIN_PASSWORD) {

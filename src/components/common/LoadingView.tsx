@@ -6,16 +6,14 @@ type Props = {
   message?: string;
 };
 
-export const LoadingView: React.FC<Props> = ({
-  message = '불러오는 중...',
-}) => {
+export function LoadingView({ message = '불러오는 중...' }: Props) {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={theme.colors.accent} />
       <Text style={styles.text}>{message}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -9,7 +9,7 @@ type Props = {
   onPress: () => void;
 };
 
-export const BlogPostCard: React.FC<Props> = ({ post, onPress }) => {
+function BlogPostCard({ post, onPress }: Props) {
   const dateStr = new Date(post.created_at).toLocaleDateString('ko-KR');
   const tags = parseTags(post.tags);
 
@@ -49,7 +49,9 @@ export const BlogPostCard: React.FC<Props> = ({ post, onPress }) => {
       </View>
     </TouchableOpacity>
   );
-};
+}
+
+export default BlogPostCard;
 
 const styles = StyleSheet.create({
   container: {

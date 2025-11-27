@@ -7,7 +7,7 @@ type Props = {
   onRetry?: () => void;
 };
 
-export const ErrorView: React.FC<Props> = ({ error, onRetry }) => {
+export function ErrorView({ error, onRetry }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.errorText}>{error}</Text>
@@ -18,7 +18,7 @@ export const ErrorView: React.FC<Props> = ({ error, onRetry }) => {
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

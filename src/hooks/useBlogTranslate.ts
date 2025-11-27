@@ -40,7 +40,6 @@ export const useBlogTranslate = () => {
       let finalTitleEn = data.titleEn || '';
       let finalContentEn = data.contentEn || '';
 
-      // JSON 파싱 시도
       if (!finalTitleEn && finalContentEn.includes('```json')) {
         try {
           let cleanText = finalContentEn.trim();
