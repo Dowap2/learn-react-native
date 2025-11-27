@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/navigation/types';
+import type { RootStackParamList } from '@/types/navigation.types';
 import * as Linking from 'expo-linking';
 
 import HomeHeroCard from '@/components/home/HomeHeroCard';
