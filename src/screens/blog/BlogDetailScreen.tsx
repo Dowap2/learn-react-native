@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StatusBar, StyleSheet } from 'react-native';
-import Markdown from '@ronradtke/react-native-markdown-display';
+import {
+  View,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import Markdown, {
+  MarkdownIt,
+  RenderRules,
+} from '@ronradtke/react-native-markdown-display';
+import SyntaxHighlighter from 'react-native-syntax-highlighter';
+import { github } from 'react-syntax-highlighter/styles/hljs';
+import * as Clipboard from 'expo-clipboard';
 
 import type { RootStackParamList } from '@/types/navigation.types';
 import { useBlogPost } from '@/hooks/useBlogPost';
@@ -17,7 +30,54 @@ import type { Language } from '@/types/blog.types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogDetail'>;
 
-const ACCENT_COLOR = '#1E3A8A';
+const ACCENT_COLOR = '#0969DA';
+
+const markdownRules: RenderRules = {
+  fence: (node, children, parent, styles) => {
+    const language = (node.attributes?.info || '').split(' ')[0] || 'text';
+    const code = node.content;
+
+    return (
+      <View key={node.key} style={styles.codeBlock}>
+        <View style={styles.codeHeader}>
+          <View style={styles.codeLanguageTag}>
+            <Text style={styles.codeLanguageText}>{language}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => Clipboard.setStringAsync(code)}
+            style={styles.copyButton}
+          >
+            <Text style={styles.copyButtonText}>Copy</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView
+          horizontal
+          style={styles.codeScrollView}
+          contentContainerStyle={{ minWidth: '100%' }}
+          showsHorizontalScrollIndicator={false}
+        >
+          <SyntaxHighlighter
+            language={language}
+            style={github as any}
+            highlighter="hljs"
+            customStyle={{
+              width: '100%',
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              backgroundColor: '#F6F8FA',
+              margin: 0,
+              fontSize: 13,
+              overflow: 'hidden',
+            }}
+          >
+            {code}
+          </SyntaxHighlighter>
+        </ScrollView>
+      </View>
+    );
+  },
+};
 
 function BlogDetailScreen({ route, navigation }: Props) {
   const { postId } = route.params;
@@ -107,7 +167,7 @@ function BlogDetailScreen({ route, navigation }: Props) {
       />
 
       <View style={styles.card}>
-        <Markdown style={markdownStyles}>
+        <Markdown style={markdownStyles} rules={markdownRules}>
           {content ?? '내용이 없습니다.'}
         </Markdown>
       </View>
@@ -120,7 +180,7 @@ export default BlogDetailScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
   },
   content: {
     paddingHorizontal: 16,
@@ -129,88 +189,237 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 18,
+    borderRadius: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 24,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderTopWidth: 3,
-    borderTopColor: ACCENT_COLOR,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: '#D0D7DE',
+  },
+  codeBlock: {
+    marginBottom: 0,
+    borderWidth: 1,
+    borderColor: '#D0D7DE',
+    borderRadius: 6,
+    overflow: 'hidden',
+    backgroundColor: '#F6F8FA',
+  },
+  codeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#F6F8FA',
+    borderBottomWidth: 1,
+    borderBottomColor: '#D0D7DE',
+  },
+  codeLanguageTag: {
+    backgroundColor: '#DDF4FF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#54AEFF',
+  },
+  codeLanguageText: {
+    fontSize: 11,
+    color: '#0969DA',
+    fontWeight: '600',
+  },
+  copyButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  copyButtonText: {
+    fontSize: 12,
+    color: '#57606A',
+    fontWeight: '500',
+  },
+  codeScrollView: {
+    borderRadius: 0,
   },
 });
 
 function createMarkdownStyles(accentColor: string) {
   return StyleSheet.create({
     body: {
-      fontSize: 15,
+      fontSize: 16,
       lineHeight: 24,
-      color: '#111827',
+      color: '#24292F',
+      fontFamily: 'System',
     },
     heading1: {
-      fontSize: 22,
-      fontWeight: '700',
-      marginTop: 20,
-      marginBottom: 10,
-      color: '#0F172A',
+      fontSize: 32,
+      fontWeight: '600',
+      marginTop: 24,
+      marginBottom: 16,
+      color: '#24292F',
+      borderBottomWidth: 1,
+      borderBottomColor: '#D0D7DE',
+      paddingBottom: 8,
+      lineHeight: 40,
     },
     heading2: {
-      fontSize: 18,
-      fontWeight: '700',
-      marginTop: 18,
-      marginBottom: 8,
-      color: '#0F172A',
+      fontSize: 24,
+      fontWeight: '600',
+      marginTop: 24,
+      marginBottom: 16,
+      color: '#24292F',
+      borderBottomWidth: 1,
+      borderBottomColor: '#D0D7DE',
+      paddingBottom: 8,
+      lineHeight: 32,
     },
     heading3: {
+      fontSize: 20,
+      fontWeight: '600',
+      marginTop: 24,
+      marginBottom: 16,
+      color: '#24292F',
+      lineHeight: 28,
+    },
+    heading4: {
       fontSize: 16,
       fontWeight: '600',
-      marginTop: 14,
-      marginBottom: 6,
-      color: '#111827',
+      marginTop: 24,
+      marginBottom: 16,
+      color: '#24292F',
+      lineHeight: 24,
+    },
+    heading5: {
+      fontSize: 14,
+      fontWeight: '600',
+      marginTop: 24,
+      marginBottom: 16,
+      color: '#24292F',
+      lineHeight: 20,
+    },
+    heading6: {
+      fontSize: 13,
+      fontWeight: '600',
+      marginTop: 24,
+      marginBottom: 16,
+      color: '#57606A',
+      lineHeight: 20,
     },
     paragraph: {
-      marginBottom: 10,
+      marginBottom: 16,
+      lineHeight: 24,
     },
     bullet_list: {
-      marginBottom: 8,
-      paddingLeft: 8,
+      marginBottom: 16,
+      paddingLeft: 0,
     },
     ordered_list: {
-      marginBottom: 8,
-      paddingLeft: 8,
+      marginBottom: 16,
+      paddingLeft: 0,
+    },
+    list_item: {
+      marginBottom: 4,
+      paddingLeft: 28,
+      lineHeight: 24,
+    },
+    blockquote: {
+      borderLeftWidth: 4,
+      borderLeftColor: '#D0D7DE',
+      paddingLeft: 16,
+      marginVertical: 16,
+      color: '#57606A',
+      backgroundColor: '#F6F8FA',
+      paddingVertical: 8,
+      borderRadius: 0,
+    },
+    hr: {
+      marginVertical: 24,
+      height: 2,
+      backgroundColor: '#D0D7DE',
+      borderBottomWidth: 0,
     },
     code_inline: {
-      backgroundColor: '#F3F4F6',
-      paddingHorizontal: 4,
+      backgroundColor: '#EFF1F3',
+      paddingHorizontal: 6,
       paddingVertical: 2,
-      borderRadius: 4,
-      fontFamily: 'monospace',
-      borderWidth: 1,
-      borderColor: '#E5E7EB',
+      borderRadius: 6,
+      fontFamily: 'Menlo, Monaco, Courier, monospace',
+      fontSize: 13.6,
+      color: '#24292F',
+      borderWidth: 0,
     },
     code_block: {
-      backgroundColor: '#F3F4F6',
-      padding: 10,
-      borderRadius: 8,
-      fontFamily: 'monospace',
-      marginBottom: 12,
-      borderLeftWidth: 3,
-      borderLeftColor: accentColor,
+      backgroundColor: '#F6F8FA',
+      padding: 16,
+      borderRadius: 6,
+      fontFamily: 'Menlo, Monaco, Courier, monospace',
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: '#D0D7DE',
+      fontSize: 13,
+      lineHeight: 20,
+    },
+    fence: {
+      backgroundColor: '#F6F8FA',
+      padding: 16,
+      borderRadius: 6,
+      fontFamily: 'Menlo, Monaco, Courier, monospace',
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: '#D0D7DE',
+    },
+    table: {
+      borderWidth: 1,
+      borderColor: '#D0D7DE',
+      borderRadius: 6,
+      marginVertical: 16,
+      overflow: 'hidden',
+    },
+    thead: {
+      backgroundColor: '#F6F8FA',
+    },
+    th: {
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRightWidth: 1,
+      borderRightColor: '#D0D7DE',
+      fontWeight: '600',
+      fontSize: 14,
+      color: '#24292F',
+    },
+    tbody: {
+      backgroundColor: '#FFFFFF',
+    },
+    tr: {
+      borderTopWidth: 1,
+      borderTopColor: '#D0D7DE',
+    },
+    td: {
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRightWidth: 1,
+      borderRightColor: '#D0D7DE',
+      fontSize: 14,
+      color: '#24292F',
+      lineHeight: 20,
+    },
+    image: {
+      borderRadius: 6,
+      marginVertical: 16,
+      maxWidth: '100%',
     },
     strong: {
-      fontWeight: '700',
-      color: '#111827',
+      fontWeight: '600',
+      color: '#24292F',
     },
     em: {
       fontStyle: 'italic',
+      color: '#24292F',
     },
     link: {
       color: accentColor,
       textDecorationLine: 'underline',
+    },
+    s: {
+      textDecorationLine: 'line-through',
+      color: '#57606A',
     },
   });
 }
