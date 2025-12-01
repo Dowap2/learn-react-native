@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/navigation/types';
+import type { RootStackParamList } from '@/types/navigation.types';
 
 import { useFaq } from '@/hooks/useFaq';
 import FaqSearchBar from '@/components/faq/FaqSearchBar';
